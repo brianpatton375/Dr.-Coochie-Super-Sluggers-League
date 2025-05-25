@@ -720,8 +720,21 @@
 
   function renderStandings() {
     standingsTableBody.innerHTML = ''; // Clear existing rows
-    // Sort standings alphabetically by team name for consistent display
-    const sortedStandings = Object.entries(standings).sort(([teamA], [teamB]) => teamA.localeCompare(teamB));
+    
+    // Sort standings by record (wins descending, then losses ascending)
+    const sortedStandings = Object.entries(standings).sort(([teamA, recordA], [teamB, recordB]) => {
+      // Parse records into wins and losses
+      const [winsA, lossesA] = recordA.split('-').map(Number);
+      const [winsB, lossesB] = recordB.split('-').map(Number);
+
+      // Primary sort: by wins (descending)
+      if (winsA !== winsB) {
+        return winsB - winsA; // Higher wins first
+      }
+
+      // Secondary sort: if wins are equal, sort by losses (ascending)
+      return lossesA - lossesB; // Lower losses first
+    });
 
     sortedStandings.forEach(([teamName, record]) => {
       const row = standingsTableBody.insertRow();
@@ -743,13 +756,23 @@
     const record = recordInput.value.trim();
 
     if (teamName && record) {
+      // Basic validation for W-L format (e.g., 5-2)
+      if (!/^\d+-\d+$/.test(record)) {
+        console.error('Record format must be like "Wins-Losses" (e.g., 5-2).');
+        // Clear the invalid record input to prompt user for correct format
+        recordInput.value = ''; 
+        return;
+      }
       standings[teamName] = record; // Update or add team standing
       localStorage.setItem('marioSluggersStandings', JSON.stringify(standings)); // Save to localStorage
       renderStandings(); // Re-render table
-      teamNameInput.value = ''; // Clear inputs
-      recordInput.value = '';
+      teamNameInput.value = ''; // Clear inputs on successful update
+      recordInput.value = ''; // Clear inputs on successful update
     } else {
       console.error('Please enter both team name and record.');
+      // Clear inputs if either is empty to ensure user re-enters
+      teamNameInput.value = ''; 
+      recordInput.value = '';
     }
   }
 
@@ -768,3 +791,4 @@
 </script>
 </body>
 </html>
+
