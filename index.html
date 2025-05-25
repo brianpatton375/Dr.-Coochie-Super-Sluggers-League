@@ -7,174 +7,174 @@
 <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/tone/14.8.49/Tone.min.js"></script>
 <style>
-  body {
-    font-family: 'Press Start 2P', cursive, Arial, sans-serif; /* Added a retro font */
-    background: linear-gradient(to bottom, #1a1a1a, #000000); /* Darker, gradient background */
-    color: #e0e0e0; /* Lighter text for contrast */
-    text-align: center;
-    margin: 0;
-    padding: 0 10px 50px;
-    overflow-x: hidden; /* Prevent horizontal scroll */
-  }
+  body {
+    font-family: 'Press Start 2P', cursive, Arial, sans-serif; /* Added a retro font */
+    background: linear-gradient(to bottom, #1a1a1a, #000000); /* Darker, gradient background */
+    color: #e0e0e0; /* Lighter text for contrast */
+    text-align: center;
+    margin: 0;
+    padding: 0 10px 50px;
+    overflow-x: hidden; /* Prevent horizontal scroll */
+  }
 
-  h1 {
-    font-size: 2.5rem;
-    color: #ffeb3b; /* Mario coin yellow */
-    text-shadow: 3px 3px 0px #c62828; /* Red shadow for pop */
-    margin-bottom: 2rem;
-    padding-top: 20px;
-  }
-  h2 {
-    color: #8bc34a; /* Green pipe color */
-    margin-top: 3rem;
-    margin-bottom: 1rem;
-    border-bottom: 2px solid #8bc34a;
-    display: inline-block;
-    padding-bottom: 5px;
-  }
-  .section-container {
-    background: rgba(17, 17, 17, 0.8); /* Slightly transparent dark background */
-    border: 2px solid #440000;
-    border-radius: 10px;
-    padding: 20px;
-    margin: 30px auto;
-    max-width: 700px;
-    box-shadow: 0 0 20px rgba(255, 0, 0, 0.5); /* More vibrant shadow */
-  }
-  #wheelCanvas, #stageWheelCanvas {
-    margin: 20px auto;
-    display: block;
-    background: #333;
-    border-radius: 50%;
-    box-shadow: 0 0 20px #ff0000, 0 0 40px #ff6666; /* Enhanced wheel glow */
-  }
-  #coin {
-    margin: 20px auto;
-    cursor: pointer;
-    width: 100px;
-    height: 100px;
-    perspective: 600px;
-    position: relative; /* For the glow */
-  }
-  #coinInner {
-    width: 100px;
-    height: 100px;
-    background: gold;
-    border-radius: 50%;
-    line-height: 100px;
-    font-weight: bold;
-    font-size: 1.4rem;
-    color: #444;
-    user-select: none;
-    transform-style: preserve-3d;
-    box-shadow: 0 0 15px gold, 0 0 30px #ffdf00; /* Enhanced coin glow */
-    transition: background 0.3s ease, color 0.3s ease, box-shadow 0.3s ease; /* Smooth transition */
-  }
-  #coinInner.day {
-    background: #fce570;
-    color: #444;
-    box-shadow: 0 0 15px #ffea70, 0 0 30px #ffe100;
-  }
-  #coinInner.night {
-    background: #334466;
-    color: #ddd;
-    box-shadow: 0 0 15px #5577aa, 0 0 30px #77aadd;
-  }
-  table {
-    margin: 20px auto;
-    width: 90%; /* Slightly wider tables */
-    border-collapse: collapse;
-    background: #0a0a0a; /* Darker table background */
-    border-radius: 8px; /* Slightly more rounded corners */
-    overflow: hidden;
-    box-shadow: 0 0 15px #880000; /* Enhanced table shadow */
-    color: #e0e0e0;
-  }
-  th, td {
-    padding: 12px; /* More padding */
-    border-bottom: 1px solid #666; /* Lighter border */
-    text-align: center; /* Center table text */
-  }
-  th {
-    background: #660000; /* Darker red for headers */
-    color: white;
-    text-transform: uppercase;
-    font-size: 0.9rem;
-  }
-  input[type="number"], input[type="text"], select { /* Added select for dropdown */
-    width: calc(100% - 20px); /* Adjust for padding */
-    padding: 10px; /* More padding */
-    margin-bottom: 10px; /* Space between inputs */
-    border-radius: 5px;
-    border: 1px solid #555;
-    background: #222;
-    color: #eee;
-    box-sizing: border-box; /* Include padding in width */
-  }
-  button {
-    margin-top: 15px;
-    padding: 12px 20px; /* Larger buttons */
-    font-size: 1.1rem;
-    cursor: pointer;
-    border-radius: 6px;
-    border: none;
-    background: #d32f2f; /* Brighter red button */
-    color: white;
-    box-shadow: 0 5px 8px #9a0000;
-    transition: background 0.2s ease, box-shadow 0.2s ease;
-  }
-  button:hover {
-    background: #ff5252; /* Even brighter on hover */
-    box-shadow: 0 6px 10px #bb0000;
-  }
-  button:disabled {
-    background: #555;
-    cursor: not-allowed;
-    box-shadow: none;
-  }
-  .admin-section {
-    background: #1a1a1a;
-    padding: 25px;
-    margin: 20px auto;
-    max-width: 650px;
-    border-radius: 12px;
-    box-shadow: 0 0 15px #660000;
-    border: 1px solid #330000;
-  }
-  /* Wheel pointer */
-  #pointer {
-    width: 0;
-    height: 0;
-    border-left: 20px solid transparent;
-    border-right: 20px solid transparent;
-    border-top: 35px solid #ff0000; /* Flipped to border-top */
-    margin: 0 auto;
-    margin-bottom: -35px; /* Adjusted margin to position above the wheel */
-    filter: drop-shadow(0 0 5px #ff6666);
-    position: relative;
-    z-index: 10;
-  }
+  h1 {
+    font-size: 2.5rem;
+    color: #ffeb3b; /* Mario coin yellow */
+    text-shadow: 3px 3px 0px #c62828; /* Red shadow for pop */
+    margin-bottom: 2rem;
+    padding-top: 20px;
+  }
+  h2 {
+    color: #8bc34a; /* Green pipe color */
+    margin-top: 3rem;
+    margin-bottom: 1rem;
+    border-bottom: 2px solid #8bc34a;
+    display: inline-block;
+    padding-bottom: 5px;
+  }
+  .section-container {
+    background: rgba(17, 17, 17, 0.8); /* Slightly transparent dark background */
+    border: 2px solid #440000;
+    border-radius: 10px;
+    padding: 20px;
+    margin: 30px auto;
+    max-width: 700px;
+    box-shadow: 0 0 20px rgba(255, 0, 0, 0.5); /* More vibrant shadow */
+  }
+  #wheelCanvas, #stageWheelCanvas {
+    margin: 20px auto;
+    display: block;
+    background: #333;
+    border-radius: 50%;
+    box-shadow: 0 0 20px #ff0000, 0 0 40px #ff6666; /* Enhanced wheel glow */
+  }
+  #coin {
+    margin: 20px auto;
+    cursor: pointer;
+    width: 100px;
+    height: 100px;
+    perspective: 600px;
+    position: relative; /* For the glow */
+  }
+  #coinInner {
+    width: 100px;
+    height: 100px;
+    background: gold;
+    border-radius: 50%;
+    line-height: 100px;
+    font-weight: bold;
+    font-size: 1.4rem;
+    color: #444;
+    user-select: none;
+    transform-style: preserve-3d;
+    box-shadow: 0 0 15px gold, 0 0 30px #ffdf00; /* Enhanced coin glow */
+    transition: background 0.3s ease, color 0.3s ease, box-shadow 0.3s ease; /* Smooth transition */
+  }
+  #coinInner.day {
+    background: #fce570;
+    color: #444;
+    box-shadow: 0 0 15px #ffea70, 0 0 30px #ffe100;
+  }
+  #coinInner.night {
+    background: #334466;
+    color: #ddd;
+    box-shadow: 0 0 15px #5577aa, 0 0 30px #77aadd;
+  }
+  table {
+    margin: 20px auto;
+    width: 90%; /* Slightly wider tables */
+    border-collapse: collapse;
+    background: #0a0a0a; /* Darker table background */
+    border-radius: 8px; /* Slightly more rounded corners */
+    overflow: hidden;
+    box-shadow: 0 0 15px #880000; /* Enhanced table shadow */
+    color: #e0e0e0;
+  }
+  th, td {
+    padding: 12px; /* More padding */
+    border-bottom: 1px solid #666; /* Lighter border */
+    text-align: center; /* Center table text */
+  }
+  th {
+    background: #660000; /* Darker red for headers */
+    color: white;
+    text-transform: uppercase;
+    font-size: 0.9rem;
+  }
+  input[type="number"], input[type="text"], select { /* Added select for dropdown */
+    width: calc(100% - 20px); /* Adjust for padding */
+    padding: 10px; /* More padding */
+    margin-bottom: 10px; /* Space between inputs */
+    border-radius: 5px;
+    border: 1px solid #555;
+    background: #222;
+    color: #eee;
+    box-sizing: border-box; /* Include padding in width */
+  }
+  button {
+    margin-top: 15px;
+    padding: 12px 20px; /* Larger buttons */
+    font-size: 1.1rem;
+    cursor: pointer;
+    border-radius: 6px;
+    border: none;
+    background: #d32f2f; /* Brighter red button */
+    color: white;
+    box-shadow: 0 5px 8px #9a0000;
+    transition: background 0.2s ease, box-shadow 0.2s ease;
+  }
+  button:hover {
+    background: #ff5252; /* Even brighter on hover */
+    box-shadow: 0 6px 10px #bb0000;
+  }
+  button:disabled {
+    background: #555;
+    cursor: not-allowed;
+    box-shadow: none;
+  }
+  .admin-section {
+    background: #1a1a1a;
+    padding: 25px;
+    margin: 20px auto;
+    max-width: 650px;
+    border-radius: 12px;
+    box-shadow: 0 0 15px #660000;
+    border: 1px solid #330000;
+  }
+  /* Wheel pointer */
+  #pointer {
+    width: 0;
+    height: 0;
+    border-left: 20px solid transparent;
+    border-right: 20px solid transparent;
+    border-top: 35px solid #ff0000; /* Flipped to border-top */
+    margin: 0 auto;
+    margin-bottom: -35px; /* Adjusted margin to position above the wheel */
+    filter: drop-shadow(0 0 5px #ff6666);
+    position: relative;
+    z-index: 10;
+  }
 
-  /* Specific styles for Draft Board */
-  #draftBoardTable {
-    width: 95%; /* Make draft board wider */
-    max-width: 900px; /* Set a max-width for very large screens */
-    overflow-x: auto; /* Allow horizontal scrolling if content overflows */
-    display: block; /* Ensures overflow-x works */
-  }
-  #draftBoardTable th,
-  #draftBoardTable td {
-    font-size: 0.7rem; /* Smaller font for draft board cells */
-    white-space: nowrap; /* Prevent text wrapping */
-    padding: 8px 5px; /* Adjust padding to give more room */
-    min-width: 80px; /* Minimum width for each pick column to accommodate 20 chars */
-  }
-  #draftBoardTable th:first-child,
-  #draftBoardTable td:first-child,
-  #draftBoardTable th:nth-child(2),
-  #draftBoardTable td:nth-child(2) {
-    min-width: 100px; /* Slightly wider for Names and Captains */
-  }
+  /* Specific styles for Draft Board */
+  #draftBoardTable {
+    width: 95%; /* Make draft board wider */
+    max-width: 900px; /* Set a max-width for very large screens */
+    overflow-x: auto; /* Allow horizontal scrolling if content overflows */
+    display: block; /* Ensures overflow-x works */
+  }
+  #draftBoardTable th,
+  #draftBoardTable td {
+    font-size: 0.7rem; /* Smaller font for draft board cells */
+    white-space: nowrap; /* Prevent text wrapping */
+    padding: 8px 5px; /* Adjust padding to give more room */
+    min-width: 80px; /* Minimum width for each pick column to accommodate 20 chars */
+  }
+  #draftBoardTable th:first-child,
+  #draftBoardTable td:first-child,
+  #draftBoardTable th:nth-child(2),
+  #draftBoardTable td:nth-child(2) {
+    min-width: 100px; /* Slightly wider for Names and Captains */
+  }
 </style>
 </head>
 <body>
@@ -182,456 +182,315 @@
 <h1>Dr. Coochie's Mario Super Sluggers League</h1>
 
 <div class="section-container">
-  <h2>Name Wheel</h2>
-  <div id="pointer"></div>
-  <canvas id="wheelCanvas" width="300" height="300"></canvas><br />
-  <button onclick="spinNameWheel()" id="nameSpinBtn">Spin Name Wheel</button>
-  <p id="nameResult"></p>
-  <button onclick="removeSelectedName()" id="removeNameBtn" style="display: none;">Remove Selected Name</button>
+  <h2>Name Wheel</h2>
+  <div id="pointer"></div>
+  <canvas id="wheelCanvas" width="300" height="300"></canvas><br />
+  <button onclick="spinNameWheel()" id="nameSpinBtn">Spin Name Wheel</button>
+  <p id="nameResult"></p>
+  <button onclick="removeSelectedName()" id="removeNameBtn" style="display: none;">Remove Selected Name</button>
 </div>
 
 <div class="section-container">
-  <h2>Day/Night Coin Flip</h2>
-  <div id="coin" onclick="flipCoin()">
-    <div id="coinInner" class="day">DAY</div>
-  </div>
+  <h2>Day/Night Coin Flip</h2>
+  <div id="coin" onclick="flipCoin()">
+    <div id="coinInner" class="day">DAY</div>
+  </div>
 </div>
 
 <div class="section-container">
-  <h2>Stage Wheel</h2>
-  <div id="pointer" style="margin-bottom: -35px;"></div> <canvas id="stageWheelCanvas" width="300" height="300"></canvas><br />
-  <button onclick="spinStageWheel()" id="stageSpinBtn">Spin Stage Wheel</button>
-  <p id="stageResult"></p>
+  <h2>Stage Wheel</h2>
+  <div id="pointer" style="margin-bottom: -35px;"></div> <canvas id="stageWheelCanvas" width="300" height="300"></canvas><br />
+  <button onclick="spinStageWheel()" id="stageSpinBtn">Spin Stage Wheel</button>
+  <p id="stageResult"></p>
 </div>
 
 <div class="admin-section">
-  <h2>Draft Board (Admin Only)</h2>
-  <table id="draftBoardTable">
-    <thead>
-      <tr>
-        <th>Names</th> <th>Captains</th> <th>1</th><th>2</th><th>3</th><th>4</th><th>5</th><th>6</th><th>7</th><th>8</th>
-      </tr>
-    </thead>
-    <tbody></tbody>
-  </table>
-  <select id="draftCaptainSelect">
-    <option value="">Select Player Name</option> </select>
-  <input type="number" id="draftPickNumber" placeholder="Pick Number (1-8)" min="1" max="8" />
-  <input type="text" id="draftedPlayerName" placeholder="Player drafted" />
-  <button onclick="addDraftPick()">Add Draft Pick</button>
+  <h2>Draft Board (Admin Only)</h2>
+  <table id="draftBoardTable">
+    <thead>
+      <tr>
+        <th>Names</th> <th>Captains</th> <th>1</th><th>2</th><th>3</th><th>4</th><th>5</th><th>6</th><th>7</th><th>8</th>
+      </tr>
+    </thead>
+    <tbody></tbody>
+  </table>
+  <select id="draftCaptainSelect">
+    <option value="">Select Player Name</option> </select>
+  <input type="number" id="draftPickNumber" placeholder="Pick Number (1-8)" min="1" max="8" />
+  <input type="text" id="draftedPlayerName" placeholder="Player drafted" />
+  <button onclick="addDraftPick()">Add Draft Pick</button>
 </div>
 
 <div class="admin-section">
-  <h2>Standings Board (Admin Only)</h2>
-  <table id="standingsTable">
-    <thead>
-      <tr><th>Team Name</th><th>Record</th></tr>
-    </thead>
-    <tbody></tbody>
-  </table>
-  <input type="text" id="standingTeamName" placeholder="Team Name" />
-  <input type="text" id="standingRecord" placeholder="Record (e.g., 5-2)" />
-  <button onclick="updateStandings()">Update Standing</button>
+  <h2>Standings Board (Admin Only)</h2>
+  <table id="standingsTable">
+    <thead>
+      <tr><th>Team Name</th><th>Record</th></tr>
+    </thead>
+    <tbody></tbody>
+  </table>
+  <input type="text" id="standingTeamName" placeholder="Team Name" />
+  <input type="text" id="standingRecord" placeholder="Record (e.g., 5-2)" />
+  <button onclick="updateStandings()">Update Standing</button>
 </div>
 
 <script>
-  // Initialize Tone.js for sound effects
-  // A simple synth for clicking sound
-  const clickSynth = new Tone.Synth({
-    oscillator: { type: "square" },
-    envelope: { attack: 0.001, decay: 0.05, sustain: 0.0, release: 0.05 }
-  }).toDestination();
+  // Initialize Tone.js for sound effects
+  // A simple synth for clicking sound
+  const clickSynth = new Tone.Synth({
+    oscillator: { type: "square" },
+    envelope: { attack: 0.001, decay: 0.05, sustain: 0.0, release: 0.05 }
+  }).toDestination();
 
-  // Use PolySynth for playing chords
-  const congratsSynth = new Tone.PolySynth(Tone.Synth, {
-    oscillator: { type: "triangle" },
-    envelope: { attack: 0.05, decay: 0.2, sustain: 0.1, release: 0.5 }
-  }).toDestination();
+  // Use PolySynth for playing chords
+  const congratsSynth = new Tone.PolySynth(Tone.Synth, {
+    oscillator: { type: "triangle" },
+    envelope: { attack: 0.05, decay: 0.2, sustain: 0.1, release: 0.5 }
+  }).toDestination();
 
-  // --- Wheel drawing common function ---
-  // Now accepts a fontSize parameter
-  function drawWheel(items, ctx, colors, fontSize) {
-    const num = items.length;
-    const arcSize = (2 * Math.PI) / num;
-    ctx.clearRect(0, 0, ctx.canvas.width, ctx.canvas.height);
-    const centerX = ctx.canvas.width / 2;
-    const centerY = ctx.canvas.height / 2;
-    const radius = centerX - 10; // Slightly smaller radius to ensure border visibility
+  // --- Wheel drawing common function ---
+  // Now accepts a fontSize parameter
+  function drawWheel(items, ctx, colors, fontSize) {
+    const num = items.length;
+    const arcSize = (2 * Math.PI) / num;
+    ctx.clearRect(0, 0, ctx.canvas.width, ctx.canvas.height);
+    const centerX = ctx.canvas.width / 2;
+    const centerY = ctx.canvas.height / 2;
+    const radius = centerX - 10; // Slightly smaller radius to ensure border visibility
 
-    for (let i = 0; i < num; i++) {
-      const startAngle = i * arcSize;
-      const endAngle = startAngle + arcSize;
+    for (let i = 0; i < num; i++) {
+      const startAngle = i * arcSize;
+      const endAngle = startAngle + arcSize;
 
-      ctx.beginPath();
-      ctx.moveTo(centerX, centerY);
-      ctx.fillStyle = colors[i % colors.length]; // Cycle through colors
-      ctx.arc(centerX, centerY, radius, startAngle, endAngle);
-      ctx.fill();
-      ctx.strokeStyle = '#000'; // Segment borders
-      ctx.lineWidth = 2;
-      ctx.stroke();
+      ctx.beginPath();
+      ctx.moveTo(centerX, centerY);
+      ctx.fillStyle = colors[i % colors.length]; // Cycle through colors
+      ctx.arc(centerX, centerY, radius, startAngle, endAngle);
+      ctx.fill();
+      ctx.strokeStyle = '#000'; // Segment borders
+      ctx.lineWidth = 2;
+      ctx.stroke();
 
-      ctx.save();
-      ctx.translate(centerX, centerY);
-      ctx.rotate(startAngle + arcSize / 2); // Rotate to the middle of the segment
-      ctx.textAlign = "right";
-      ctx.fillStyle = '#fff';
-      ctx.font = `bold ${fontSize}px 'Press Start 2P'`; // Use the passed fontSize
-      ctx.fillText(items[i], radius - 10, 5); // Position text
-      ctx.restore();
-    }
-  }
+      ctx.save();
+      ctx.translate(centerX, centerY);
+      ctx.rotate(startAngle + arcSize / 2); // Rotate to the middle of the segment
+      ctx.textAlign = "right";
+      ctx.fillStyle = '#fff';
+      ctx.font = `bold ${fontSize}px 'Press Start 2P'`; // Use the passed fontSize
+      ctx.fillText(items[i], radius - 10, 5); // Position text
+      ctx.restore();
+    }
+  }
 
-  // --- Name Wheel ---
-  // Default names if localStorage is empty
-  const defaultNames = ["Brian", "Dylan", "Jacob", "Grant", "Phil", "Cole", "Murph"];
-  // Load names from localStorage, or use default if not found
-  let names = JSON.parse(localStorage.getItem('marioSluggersNames')) || defaultNames;
+  // --- Name Wheel ---
+  // Default names if localStorage is empty
+  const defaultNames = ["Brian", "Dylan", "Jacob", "Grant", "Phil", "Cole", "Murph"];
+  // Load names from localStorage, or use default if not found
+  let names = JSON.parse(localStorage.getItem('marioSluggersNames')) || defaultNames;
 
-  const nameCanvas = document.getElementById('wheelCanvas');
-  const nameCtx = nameCanvas.getContext('2d');
-  const nameColors = ['#ff6666', '#cc4444', '#ff8888', '#ee5555']; // More color variety
-  drawWheel(names, nameCtx, nameColors, 14); // Pass 14px for Name Wheel
+  const nameCanvas = document.getElementById('wheelCanvas');
+  const nameCtx = nameCanvas.getContext('2d');
+  const nameColors = ['#ff6666', '#cc4444', '#ff8888', '#ee5555']; // More color variety
+  drawWheel(names, nameCtx, nameColors, 14); // Pass 14px for Name Wheel
 
-  let nameRotation = 0;
-  let nameSpinning = false;
-  let lastClickTime = 0;
-  const clickInterval = 100; // milliseconds between clicks
-  let lastSelectedIndex = -1; // To store the index of the last selected name
+  let nameRotation = 0;
+  let nameSpinning = false;
+  let lastClickTime = 0;
+  const clickInterval = 100; // milliseconds between clicks
+  let lastSelectedIndex = -1; // To store the index of the last selected name
 
-  const removeNameBtn = document.getElementById('removeNameBtn');
+  const removeNameBtn = document.getElementById('removeNameBtn');
 
-  function spinNameWheel() {
-    if(nameSpinning || names.length === 0) return; // Prevent spin if already spinning or no names
-    nameSpinning = true;
-    document.getElementById('nameSpinBtn').disabled = true; // Disable button during spin
-    removeNameBtn.style.display = 'none'; // Hide remove button
-    document.getElementById('nameResult').textContent = "Spinning...";
+  function spinNameWheel() {
+    if(nameSpinning || names.length === 0) return; // Prevent spin if already spinning or no names
+    nameSpinning = true;
+    document.getElementById('nameSpinBtn').disabled = true; // Disable button during spin
+    removeNameBtn.style.display = 'none'; // Hide remove button
+    document.getElementById('nameResult').textContent = "Spinning...";
 
-    const spins = Math.floor(Math.random() * 10) + 15; // 15-25 spins for visual effect
-    const totalRotation = spins * 2 * Math.PI + (Math.random() * 2 * Math.PI); // Random final position
-    const duration = 4000; // 4 seconds animation
-    const start = performance.now();
+    const spins = Math.floor(Math.random() * 10) + 15; // 15-25 spins for visual effect
+    const totalRotation = spins * 2 * Math.PI + (Math.random() * 2 * Math.PI); // Random final position
+    const duration = 4000; // 4 seconds animation
+    const start = performance.now();
 
-    function animate(time) {
-      let elapsed = time - start;
-      let progress = Math.min(elapsed / duration, 1);
-      // Ease out cubic function for smooth deceleration
-      progress = 1 - Math.pow(1 - progress, 3);
-      nameRotation = totalRotation * progress;
-      nameRotation %= 2 * Math.PI; // Keep rotation within 0 to 2*PI
+    function animate(time) {
+      let elapsed = time - start;
+      let progress = Math.min(elapsed / duration, 1);
+      // Ease out cubic function for smooth deceleration
+      progress = 1 - Math.pow(1 - progress, 3);
+      nameRotation = totalRotation * progress;
+      nameRotation %= 2 * Math.PI; // Keep rotation within 0 to 2*PI
 
-      drawWheel(names, nameCtx, nameColors, 14); // Redraw with 14px font size
+      drawWheel(names, nameCtx, nameColors, 14); // Redraw with 14px font size
 
-      // Play click sound at intervals
-      if (time - lastClickTime > clickInterval && progress < 0.95) { // Stop clicks near the end
-        clickSynth.triggerAttackRelease("C4", "8n");
-        lastClickTime = time;
-      }
+      // Play click sound at intervals
+      if (time - lastClickTime > clickInterval && progress < 0.95) { // Stop clicks near the end
+        clickSynth.triggerAttackRelease("C4", "8n");
+        lastClickTime = time;
+      }
 
-      if (progress < 1) {
-        requestAnimationFrame(animate); // Continue animation
-      } else {
-        nameSpinning = false;
-        document.getElementById('nameSpinBtn').disabled = false; // Re-enable button
+      if (progress < 1) {
+        requestAnimationFrame(animate); // Continue animation
+      } else {
+        nameSpinning = false;
+        document.getElementById('nameSpinBtn').disabled = false; // Re-enable button
 
-        // Calculate the selected item based on the final rotation
-        // The pointer is at the top (PI/2 radians clockwise from the right, or 90 degrees)
-        // The wheel has rotated 'nameRotation' clockwise.
-        const numNames = names.length;
-        const arcSize = (2 * Math.PI) / numNames;
+        // Calculate the selected item based on the final rotation
+        // To make the bottom of the wheel the winning segment,
+        // we adjust the reference angle from PI/2 (top) to 3*PI/2 (bottom).
+        const numNames = names.length;
+        const arcSize = (2 * Math.PI) / numNames;
 
-        let selectedAngle = (Math.PI / 2 - nameRotation) % (2 * Math.PI);
-        if (selectedAngle < 0) {
-            selectedAngle += 2 * Math.PI;
-        }
+        let selectedAngle = (3 * Math.PI / 2 - nameRotation) % (2 * Math.PI); // Changed from Math.PI / 2
+        if (selectedAngle < 0) {
+            selectedAngle += 2 * Math.PI;
+        }
 
-        lastSelectedIndex = Math.floor(selectedAngle / arcSize);
+        lastSelectedIndex = Math.floor(selectedAngle / arcSize);
 
-        if (lastSelectedIndex >= names.length) lastSelectedIndex = names.length - 1;
-        if (lastSelectedIndex < 0) lastSelectedIndex = 0;
-
-
-        document.getElementById('nameResult').textContent = "Selected: " + names[lastSelectedIndex] + "!";
-        congratsSynth.triggerAttackRelease(["C5", "E5", "G5"], "2n"); // Play congratulatory chord
-
-        // Show remove button after a name is selected
-        if (names.length > 0) {
-          removeNameBtn.style.display = 'inline-block';
-        }
-      }
-    }
-    requestAnimationFrame(animate); // Start animation
-  }
-
-  function removeSelectedName() {
-    if (lastSelectedIndex !== -1 && names.length > 0) {
-      const removedName = names.splice(lastSelectedIndex, 1); // Remove the name
-      localStorage.setItem('marioSluggersNames', JSON.stringify(names)); // Save updated names
-      drawWheel(names, nameCtx, nameColors, 14); // Redraw the wheel with 14px font
-      document.getElementById('nameResult').textContent = removedName[0] + " has been removed!";
-      removeNameBtn.style.display = 'none'; // Hide button after removal
-      lastSelectedIndex = -1; // Reset selected index
-
-      if (names.length === 0) {
-        document.getElementById('nameResult').textContent = "All names have been removed!";
-        document.getElementById('nameSpinBtn').disabled = true; // Disable spin if no names left
-      }
-    }
-  }
+        if (lastSelectedIndex >= names.length) lastSelectedIndex = names.length - 1;
+        if (lastSelectedIndex < 0) lastSelectedIndex = 0;
 
 
-  // --- Coin flip ---
-  const coinInner = document.getElementById('coinInner');
-  let isDay = true; // Initial state
-  let flipping = false;
+        document.getElementById('nameResult').textContent = "Selected: " + names[lastSelectedIndex] + "!";
+        congratsSynth.triggerAttackRelease(["C5", "E5", "G5"], "2n"); // Play congratulatory chord
 
-  function flipCoin() {
-    if(flipping) return; // Prevent multiple flips while animating
-    flipping = true;
+        // Show remove button after a name is selected
+        if (names.length > 0) {
+          removeNameBtn.style.display = 'inline-block';
+        }
+      }
+    }
+    requestAnimationFrame(animate); // Start animation
+  }
 
-    let rotation = 0;
-    const spins = 3; // Number of full 360-degree spins
-    const duration = 1200; // Animation duration in milliseconds
-    const start = performance.now();
+  function removeSelectedName() {
+    if (lastSelectedIndex !== -1 && names.length > 0) {
+      const removedName = names.splice(lastSelectedIndex, 1); // Remove the name
+      localStorage.setItem('marioSluggersNames', JSON.stringify(names)); // Save updated names
+      drawWheel(names, nameCtx, nameColors, 14); // Redraw the wheel with 14px font
+      document.getElementById('nameResult').textContent = removedName[0] + " has been removed!";
+      removeNameBtn.style.display = 'none'; // Hide button after removal
+      lastSelectedIndex = -1; // Reset selected index
 
-    function animate(time) {
-      let elapsed = time - start;
-      let progress = Math.min(elapsed / duration, 1);
-      // Rotate from 0 to spins * 360deg
-      rotation = spins * 360 * progress;
-      coinInner.style.transform = `rotateY(${rotation}deg)`;
-
-      if (progress < 1) {
-        requestAnimationFrame(animate); // Continue animation
-      } else {
-        isDay = !isDay; // Toggle day/night state
-        if (isDay) {
-          coinInner.className = 'day';
-          coinInner.textContent = 'DAY';
-        } else {
-          coinInner.className = 'night';
-          coinInner.textContent = 'NIGHT';
-        }
-        flipping = false;
-        coinInner.style.transform = ''; // Reset transform for next flip to start from 0deg
-      }
-    }
-    requestAnimationFrame(animate); // Start animation
-  }
-
-  // --- Stage Wheel ---
-  const stages = [
-    "Bowser/Bowser Jr. Castle", "Mario Stadium", "Yoshi Park",
-    "Donkey Kong Jungle", "Wario City", "Daisy Cruiser"
-  ];
-  const stageCanvas = document.getElementById('stageWheelCanvas');
-  const stageCtx = stageCanvas.getContext('2d');
-  const stageColors = ['#4caf50', '#8bc34a', '#689f38', '#388e3c']; // Greenish palette for stages
-  drawWheel(stages, stageCtx, stageColors, 11); // Pass 11px for Stage Wheel
-
-  let stageRotation = 0;
-  let stageSpinning = false;
-  let lastStageClickTime = 0;
-
-  function spinStageWheel() {
-    if(stageSpinning) return;
-    stageSpinning = true;
-    document.getElementById('stageSpinBtn').disabled = true;
-    document.getElementById('stageResult').textContent = "Spinning...";
-
-    const spins = Math.floor(Math.random() * 10) + 15;
-    const totalRotation = spins * 2 * Math.PI + (Math.random() * 2 * Math.PI);
-    const duration = 4000;
-    const start = performance.now();
-
-    function animate(time) {
-      let elapsed = time - start;
-      let progress = Math.min(elapsed / duration, 1);
-      progress = 1 - Math.pow(1 - progress, 3);
-      stageRotation = totalRotation * progress;
-      stageRotation %= 2 * Math.PI;
-
-      drawWheel(stages, stageCtx, stageColors, 11); // Redraw with 11px font size
-
-      // Play click sound at intervals
-      if (time - lastStageClickTime > clickInterval && progress < 0.95) { // Stop clicks near the end
-        clickSynth.triggerAttackRelease("C4", "8n");
-        lastStageClickTime = time;
-      }
-
-      if (progress < 1) {
-        requestAnimationFrame(animate);
-      } else {
-        stageSpinning = false;
-        document.getElementById('stageSpinBtn').disabled = false;
-
-        // Calculate the selected item based on the final rotation
-        // The pointer is at the top (PI/2 radians clockwise from the right, or 90 degrees)
-        // The wheel has rotated 'stageRotation' clockwise.
-        const numStages = stages.length;
-        const arcSize = (2 * Math.PI) / numStages;
-
-        let selectedAngle = (Math.PI / 2 - stageRotation) % (2 * Math.PI);
-        if (selectedAngle < 0) {
-            selectedAngle += 2 * Math.PI;
-        }
-
-        let index = Math.floor(selectedAngle / arcSize);
-
-        if (index >= stages.length) index = stages.length - 1;
-        if (index < 0) index = 0;
+      if (names.length === 0) {
+        document.getElementById('nameResult').textContent = "All names have been removed!";
+        document.getElementById('nameSpinBtn').disabled = true; // Disable spin if no names left
+      }
+    }
+  }
 
 
-        document.getElementById('stageResult').textContent = "Selected Stage: " + stages[index] + "!";
-        congratsSynth.triggerAttackRelease(["C5", "E5", "G5"], "2n"); // Play congratulatory chord
-      }
-    }
-    requestAnimationFrame(animate);
-  }
+  // --- Coin flip ---
+  const coinInner = document.getElementById('coinInner');
+  let isDay = true; // Initial state
+  let flipping = false;
 
-  // --- Draft Board ---
-  const draftBoardTableBody = document.getElementById('draftBoardTable').querySelector('tbody');
-  const draftPlayerNames = ["Brian", "Dylan", "Jacob", "Grant", "Phil", "Cole", "Murph"]; // Player names
-  const captainCharacters = { // Mapping player names to their character captains
-    "Brian": "Bowser Jr.",
-    "Dylan": "Diddy Kong",
-    "Jacob": "Donkey Kong",
-    "Cole": "Waluigi",
-    "Murph": "Mario",
-    "Phil": "Yoshi",
-    "Grant": "Daisy"
-  };
-  const numDraftPicks = 8; // Number of draft pick columns
+  function flipCoin() {
+    if(flipping) return; // Prevent multiple flips while animating
+    flipping = true;
 
-  // Initialize draft board data from localStorage or with default structure
-  let draftBoardData = JSON.parse(localStorage.getItem('marioSluggersDraftBoard')) || [];
+    let rotation = 0;
+    const spins = 3; // Number of full 360-degree spins
+    const duration = 1200; // Animation duration in milliseconds
+    const start = performance.now();
 
-  // If no data in localStorage, or if structure needs re-initialization (e.g., new players/columns)
-  if (draftBoardData.length === 0 || draftBoardData.length !== draftPlayerNames.length || !draftBoardData[0].captainCharacter) {
-    draftBoardData = draftPlayerNames.map(playerName => {
-      return {
-        name: playerName,
-        captainCharacter: captainCharacters[playerName] || 'N/A', // Assign character, default to N/A
-        picks: Array(numDraftPicks).fill('') // Initialize 8 empty pick slots
-      };
-    });
-    localStorage.setItem('marioSluggersDraftBoard', JSON.stringify(draftBoardData)); // Save initial structure
-  } else {
-    // If data exists, ensure it has the correct captain characters and pick array length
-    draftBoardData = draftPlayerNames.map(playerName => {
-      const existingRow = draftBoardData.find(row => row.name === playerName);
-      if (existingRow) {
-        // Update character captain in case it changed, and ensure pick array is correct length
-        return {
-          name: playerName,
-          captainCharacter: captainCharacters[playerName] || 'N/A',
-          picks: existingRow.picks.length === numDraftPicks ? existingRow.picks : Array(numDraftPicks).fill('')
-        };
-      } else {
-        // Add new player if they weren't in previous data
-        return {
-          name: playerName,
-          captainCharacter: captainCharacters[playerName] || 'N/A',
-          picks: Array(numDraftPicks).fill('')
-        };
-      }
-    });
-    localStorage.setItem('marioSluggersDraftBoard', JSON.stringify(draftBoardData)); // Save updated structure
-  }
+    function animate(time) {
+      let elapsed = time - start;
+      let progress = Math.min(elapsed / duration, 1);
+      // Rotate from 0 to spins * 360deg
+      rotation = spins * 360 * progress;
+      coinInner.style.transform = `rotateY(${rotation}deg)`;
+
+      if (progress < 1) {
+        requestAnimationFrame(animate); // Continue animation
+      } else {
+        isDay = !isDay; // Toggle day/night state
+        if (isDay) {
+          coinInner.className = 'day';
+          coinInner.textContent = 'DAY';
+        } else {
+          coinInner.className = 'night';
+          coinInner.textContent = 'NIGHT';
+        }
+        flipping = false;
+        coinInner.style.transform = ''; // Reset transform for next flip to start from 0deg
+      }
+    }
+    requestAnimationFrame(animate); // Start animation
+  }
+
+  // --- Stage Wheel ---
+  const stages = [
+    "Bowser/Bowser Jr. Castle", "Mario Stadium", "Yoshi Park",
+    "Donkey Kong Jungle", "Wario City", "Daisy Cruiser"
+  ];
+  const stageCanvas = document.getElementById('stageWheelCanvas');
+  const stageCtx = stageCanvas.getContext('2d');
+  const stageColors = ['#4caf50', '#8bc34a', '#689f38', '#388e3c']; // Greenish palette for stages
+  drawWheel(stages, stageCtx, stageColors, 11); // Pass 11px for Stage Wheel
+
+  let stageRotation = 0;
+  let stageSpinning = false;
+  let lastStageClickTime = 0;
+
+  function spinStageWheel() {
+    if(stageSpinning) return;
+    stageSpinning = true;
+    document.getElementById('stageSpinBtn').disabled = true;
+    document.getElementById('stageResult').textContent = "Spinning...";
+
+    const spins = Math.floor(Math.random() * 10) + 15;
+    const totalRotation = spins * 2 * Math.PI + (Math.random() * 2 * Math.PI);
+    const duration = 4000;
+    const start = performance.now();
+
+    function animate(time) {
+      let elapsed = time - start;
+      let progress = Math.min(elapsed / duration, 1);
+      progress = 1 - Math.pow(1 - progress, 3);
+      stageRotation = totalRotation * progress;
+      stageRotation %= 2 * Math.PI;
+
+      drawWheel(stages, stageCtx, stageColors, 11); // Redraw with 11px font size
+
+      // Play click sound at intervals
+      if (time - lastStageClickTime > clickInterval && progress < 0.95) { // Stop clicks near the end
+        clickSynth.triggerAttackRelease("C4", "8n");
+        lastStageClickTime = time;
+      }
+
+      if (progress < 1) {
+        requestAnimationFrame(animate);
+      } else {
+        stageSpinning = false;
+        document.getElementById('stageSpinBtn').disabled = false;
+
+        // Calculate the selected item based on the final rotation
+        // To make the bottom of the wheel the winning segment,
+        // we adjust the reference angle from PI/2 (top) to 3*PI/2 (bottom).
+        const numStages = stages.length;
+        const arcSize = (2 * Math.PI) / numStages;
+
+        let selectedAngle = (3 * Math.PI / 2 - stageRotation) % (2 * Math.PI); // Changed from Math.PI / 2
+        if (selectedAngle < 0) {
+            selectedAngle += 2 * Math.PI;
+        }
+
+        let index = Math.floor(selectedAngle / arcSize);
+
+        if (index >= stages.length) index = stages.length - 1;
+        if (index < 0) index = 0;
 
 
-  // Populate the captain select dropdown with player names
-  const draftCaptainSelect = document.getElementById('draftCaptainSelect');
-  draftPlayerNames.forEach(playerName => {
-    const option = document.createElement('option');
-    option.value = playerName;
-    option.textContent = playerName;
-    draftCaptainSelect.appendChild(option);
-  });
+        document.getElementById('stageResult').textContent = "Selected Stage: " + stages[index] + "!";
+        congratsSynth.triggerAttackRelease(["C5", "E5", "G5"], "2n"); // Play congratulatory chord
+      }
+    }
+    requestAnimationFrame(animate);
+  }
 
-  function renderDraftBoard() {
-    draftBoardTableBody.innerHTML = ''; // Clear existing rows
-    draftBoardData.forEach(rowData => {
-      const row = draftBoardTableBody.insertRow();
-      row.insertCell().textContent = rowData.name; // Player Name (e.g., Brian)
-      row.insertCell().textContent = rowData.captainCharacter; // Character Captain (e.g., Bowser Jr.)
-      // Add cells for each draft pick
-      for (let i = 0; i < numDraftPicks; i++) {
-        row.insertCell().textContent = rowData.picks[i];
-      }
-    });
-  }
-
-  function addDraftPick() {
-    const selectedPlayerName = draftCaptainSelect.value; // This is the player name (e.g., Brian)
-    const pickNumber = parseInt(document.getElementById('draftPickNumber').value, 10);
-    const draftedPlayer = document.getElementById('draftedPlayerName').value.trim();
-
-    if (!selectedPlayerName) {
-      console.error('Please select a player name.');
-      return;
-    }
-    if (isNaN(pickNumber) || pickNumber < 1 || pickNumber > numDraftPicks) {
-      console.error('Please enter a valid pick number between 1 and 8.');
-      return;
-    }
-    if (!draftedPlayer) {
-      console.error('Please enter the drafted player\'s name.');
-      return;
-    }
-
-    // Find the correct row in draftBoardData based on the selectedPlayerName
-    const playerRow = draftBoardData.find(row => row.name === selectedPlayerName);
-
-    if (playerRow) {
-      playerRow.picks[pickNumber - 1] = draftedPlayer; // Update the specific pick (0-indexed array)
-      localStorage.setItem('marioSluggersDraftBoard', JSON.stringify(draftBoardData)); // Save updated data
-      renderDraftBoard(); // Re-render table
-      // Clear inputs for next entry
-      document.getElementById('draftPickNumber').value = '';
-      document.getElementById('draftedPlayerName').value = '';
-      draftCaptainSelect.value = ''; // Reset dropdown
-    } else {
-      console.error('Selected player not found in draft board data. This should not happen.');
-    }
-  }
-  renderDraftBoard(); // Initial render when page loads
-
-  // --- Standings Board ---
-  const standingsTableBody = document.getElementById('standingsTable').querySelector('tbody');
-  // Load standings from localStorage or initialize empty object
-  const standings = JSON.parse(localStorage.getItem('marioSluggersStandings')) || {};
-
-  function renderStandings() {
-    standingsTableBody.innerHTML = ''; // Clear existing rows
-    // Sort standings alphabetically by team name for consistent display
-    const sortedStandings = Object.entries(standings).sort(([teamA], [teamB]) => teamA.localeCompare(teamB));
-
-    sortedStandings.forEach(([teamName, record]) => {
-      const row = standingsTableBody.insertRow();
-      row.insertCell().textContent = teamName;
-      row.insertCell().textContent = record;
-    });
-  }
-
-  function updateStandings() {
-    const teamNameInput = document.getElementById('standingTeamName');
-    const recordInput = document.getElementById('standingRecord');
-    const teamName = teamNameInput.value.trim();
-    const record = recordInput.value.trim();
-
-    if (teamName && record) {
-      standings[teamName] = record; // Update or add team standing
-      localStorage.setItem('marioSluggersStandings', JSON.stringify(standings)); // Save to localStorage
-      renderStandings(); // Re-render table
-      teamNameInput.value = ''; // Clear inputs
-      recordInput.value = '';
-    } else {
-      console.error('Please enter both team name and record.');
-    }
-  }
-  renderStandings(); // Initial render
-</script>
-</body>
-</html>
+  // --- Draft Board ---
+  const draftBoardTableBody = document.getElementById('draftBoardTable').querySelector('tbody');
+  const draftPlayerNames = ["Brian", "Dylan", "Jacob", "Grant", "Phil", "Cole", "Murph"]; // Player names
+  const captain
