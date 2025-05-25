@@ -194,6 +194,28 @@
   .delete-btn:hover {
     background-color: #c82333;
   }
+  .delete-pick-btn { /* Style for draft pick delete button */
+    background-color: #ffc107; /* Yellowish color for delete pick */
+    color: #333;
+    border: none;
+    padding: 3px 6px;
+    font-size: 0.65rem;
+    border-radius: 3px;
+    cursor: pointer;
+    transition: opacity 0.2s ease-in-out; /* Smooth transition for opacity */
+    margin-left: 5px;
+    vertical-align: middle; /* Align with text */
+    opacity: 0; /* Hidden by default */
+    pointer-events: none; /* Make it unclickable when invisible */
+  }
+  .delete-pick-btn:hover {
+    background-color: #e0a800;
+  }
+  /* Show delete button on hover over the table cell */
+  #draftBoardTable td:hover .delete-pick-btn {
+    opacity: 1; /* Visible on hover */
+    pointer-events: auto; /* Make it clickable when visible */
+  }
 </style>
 </head>
 <body>
@@ -300,8 +322,8 @@
       // Rotate to the middle of the segment, then add 90 degrees (PI/2) to make text upright
       ctx.rotate(startAngle + arcSize / 2 + Math.PI / 2);
 
-      ctx.textAlign = "center";     // Center the text horizontally
-      ctx.textBaseline = "middle";  // Center the text vertically
+      ctx.textAlign = "center";       // Center the text horizontally
+      ctx.textBaseline = "middle";    // Center the text vertically
       ctx.fillStyle = '#fff';
       ctx.font = `bold ${fontSize}px 'Press Start 2P'`; // Use the passed fontSize
       // Position text at the top of the segment (outwards from center)
@@ -389,10 +411,6 @@
         lastSelectedIndex = Math.floor(((selectedAngle - arcSize / 2 + 2 * Math.PI) % (2 * Math.PI)) / arcSize);
 
         // Ensure index wraps around correctly for the last segment
-        lastSelectedIndex = lastSelectedIndex % numNames;
-
-
-        // Correct for potential floating point inaccuracies at boundaries
         if (lastSelectedIndex >= numNames) lastSelectedIndex = numNames - 1;
         if (lastSelectedIndex < 0) lastSelectedIndex = 0;
 
@@ -437,7 +455,6 @@
 
   // --- Coin flip ---
   const coinInner = document.getElementById('coinInner');
-  let isDay = true; // Initial state
   let flipping = false;
 
   function flipCoin() {
@@ -459,8 +476,9 @@
       if (progress < 1) {
         requestAnimationFrame(animate); // Continue animation
       } else {
-        isDay = !isDay; // Toggle day/night state
-        if (isDay) {
+        // Determine result randomly (50/50 chance)
+        const resultIsDay = Math.random() < 0.5; // True for Day, False for Night
+        if (resultIsDay) {
           coinInner.className = 'day';
           coinInner.textContent = 'DAY';
         } else {
@@ -543,8 +561,6 @@
         // Determine the index of the segment whose *center* is at this `selectedAngle`.
         let index = Math.floor(((selectedAngle - arcSize / 2 + 2 * Math.PI) % (2 * Math.PI)) / arcSize);
         // Ensure index wraps around correctly for the last segment
-        index = index % numStages;
-
         if (index >= numStages) index = numStages - 1;
         if (index < 0) index = 0;
 
@@ -624,7 +640,27 @@
       row.insertCell().textContent = rowData.captainCharacter; // Character Captain (e.g., Bowser Jr.)
       // Add cells for each draft pick
       for (let i = 0; i < numDraftPicks; i++) {
-        row.insertCell().textContent = rowData.picks[i];
+        const cell = row.insertCell();
+        const pickText = rowData.picks[i];
+        if (pickText) {
+          // Create a span for the text and a button for deletion
+          const pickSpan = document.createElement('span');
+          pickSpan.textContent = pickText;
+          cell.appendChild(pickSpan);
+
+          const deleteButton = document.createElement('button');
+          deleteButton.textContent = 'X'; // Or 'Delete'
+          deleteButton.classList.add('delete-pick-btn');
+          // Attach click listener to delete the specific pick
+          deleteButton.onclick = (function(player, pickIndex) {
+            return function() {
+              deleteDraftPick(player, pickIndex);
+            };
+          })(rowData.name, i); // Pass player name and 0-indexed pick number
+          cell.appendChild(deleteButton);
+        } else {
+          cell.textContent = ''; // Keep empty if no pick
+        }
       }
     });
   }
@@ -662,6 +698,19 @@
       console.error('Selected player not found in draft board data. This should not happen.');
     }
   }
+
+  function deleteDraftPick(playerName, pickIndex) {
+    const playerRow = draftBoardData.find(row => row.name === playerName);
+    if (playerRow && playerRow.picks[pickIndex] !== undefined) {
+      playerRow.picks[pickIndex] = ''; // Clear the specific pick
+      localStorage.setItem('marioSluggersDraftBoard', JSON.stringify(draftBoardData)); // Save updated data
+      renderDraftBoard(); // Re-render table
+      console.log(`Deleted pick ${pickIndex + 1} for ${playerName}`);
+    } else {
+      console.error(`Could not delete pick ${pickIndex + 1} for ${playerName}.`);
+    }
+  }
+
   renderDraftBoard(); // Initial render when page loads
 
   // --- Standings Board ---
