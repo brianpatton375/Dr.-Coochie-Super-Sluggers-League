@@ -5,6 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 <title>Dr. Coochie's Mario Super Sluggers League</title>
 <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/tone/14.8.49/Tone.min.js"></script>
 <style>
   body {
     font-family: 'Press Start 2P', cursive, Arial, sans-serif; /* Added a retro font */
@@ -144,14 +145,35 @@
   #pointer {
     width: 0;
     height: 0;
-    border-left: 20px solid transparent; /* Larger pointer */
+    border-left: 20px solid transparent;
     border-right: 20px solid transparent;
-    border-bottom: 35px solid #ff0000; /* Brighter red */
+    border-top: 35px solid #ff0000; /* Flipped to border-top */
     margin: 0 auto;
-    margin-top: -35px;
-    filter: drop-shadow(0 0 5px #ff6666); /* Enhanced shadow */
+    margin-bottom: -35px; /* Adjusted margin to position above the wheel */
+    filter: drop-shadow(0 0 5px #ff6666);
     position: relative;
-    z-index: 10; /* Ensure pointer is above canvas */
+    z-index: 10;
+  }
+
+  /* Specific styles for Draft Board */
+  #draftBoardTable {
+    width: 95%; /* Make draft board wider */
+    max-width: 900px; /* Set a max-width for very large screens */
+    overflow-x: auto; /* Allow horizontal scrolling if content overflows */
+    display: block; /* Ensures overflow-x works */
+  }
+  #draftBoardTable th,
+  #draftBoardTable td {
+    font-size: 0.7rem; /* Smaller font for draft board cells */
+    white-space: nowrap; /* Prevent text wrapping */
+    padding: 8px 5px; /* Adjust padding to give more room */
+    min-width: 80px; /* Minimum width for each pick column to accommodate 20 chars */
+  }
+  #draftBoardTable th:first-child,
+  #draftBoardTable td:first-child,
+  #draftBoardTable th:nth-child(2),
+  #draftBoardTable td:nth-child(2) {
+    min-width: 100px; /* Slightly wider for Names and Captains */
   }
 </style>
 </head>
@@ -165,6 +187,7 @@
   <canvas id="wheelCanvas" width="300" height="300"></canvas><br />
   <button onclick="spinNameWheel()" id="nameSpinBtn">Spin Name Wheel</button>
   <p id="nameResult"></p>
+  <button onclick="removeSelectedName()" id="removeNameBtn" style="display: none;">Remove Selected Name</button>
 </div>
 
 <div class="section-container">
@@ -176,22 +199,9 @@
 
 <div class="section-container">
   <h2>Stage Wheel</h2>
-  <div id="pointer" style="margin-top: -35px;"></div> <canvas id="stageWheelCanvas" width="300" height="300"></canvas><br />
+  <div id="pointer" style="margin-bottom: -35px;"></div> <canvas id="stageWheelCanvas" width="300" height="300"></canvas><br />
   <button onclick="spinStageWheel()" id="stageSpinBtn">Spin Stage Wheel</button>
   <p id="stageResult"></p>
-</div>
-
-<div class="admin-section">
-  <h2>Live Rankings (Admin Only)</h2>
-  <table id="rankingTable">
-    <thead>
-      <tr><th>Player</th><th>Score</th></tr>
-    </thead>
-    <tbody></tbody>
-  </table>
-  <input type="text" id="rankingPlayer" placeholder="Player name" />
-  <input type="number" id="rankingScore" placeholder="Score" />
-  <button onclick="updateRanking()">Update Score</button>
 </div>
 
 <div class="admin-section">
@@ -225,6 +235,19 @@
 </div>
 
 <script>
+  // Initialize Tone.js for sound effects
+  // A simple synth for clicking sound
+  const clickSynth = new Tone.Synth({
+    oscillator: { type: "square" },
+    envelope: { attack: 0.001, decay: 0.05, sustain: 0.0, release: 0.05 }
+  }).toDestination();
+
+  // Use PolySynth for playing chords
+  const congratsSynth = new Tone.PolySynth(Tone.Synth, {
+    oscillator: { type: "triangle" },
+    envelope: { attack: 0.05, decay: 0.2, sustain: 0.1, release: 0.5 }
+  }).toDestination();
+
   // --- Wheel drawing common function ---
   function drawWheel(items, ctx, colors) {
     const num = items.length;
@@ -252,14 +275,18 @@
       ctx.rotate(startAngle + arcSize / 2); // Rotate to the middle of the segment
       ctx.textAlign = "right";
       ctx.fillStyle = '#fff';
-      ctx.font = "bold 18px 'Press Start 2P'"; // Larger and bold font for wheel text
-      ctx.fillText(items[i], radius - 15, 5); // Position text
+      ctx.font = "bold 14px 'Press Start 2P'"; // Shrink text to fit on wheel
+      ctx.fillText(items[i], radius - 10, 5); // Position text
       ctx.restore();
     }
   }
 
   // --- Name Wheel ---
-  const names = ["Brian", "Dylan", "Jacob", "Grant", "Phil", "Cole", "Murph"];
+  // Default names if localStorage is empty
+  const defaultNames = ["Brian", "Dylan", "Jacob", "Grant", "Phil", "Cole", "Murph"];
+  // Load names from localStorage, or use default if not found
+  let names = JSON.parse(localStorage.getItem('marioSluggersNames')) || defaultNames;
+
   const nameCanvas = document.getElementById('wheelCanvas');
   const nameCtx = nameCanvas.getContext('2d');
   const nameColors = ['#ff6666', '#cc4444', '#ff8888', '#ee5555']; // More color variety
@@ -267,11 +294,17 @@
 
   let nameRotation = 0;
   let nameSpinning = false;
+  let lastClickTime = 0;
+  const clickInterval = 100; // milliseconds between clicks
+  let lastSelectedIndex = -1; // To store the index of the last selected name
+
+  const removeNameBtn = document.getElementById('removeNameBtn');
 
   function spinNameWheel() {
-    if(nameSpinning) return;
+    if(nameSpinning || names.length === 0) return; // Prevent spin if already spinning or no names
     nameSpinning = true;
     document.getElementById('nameSpinBtn').disabled = true; // Disable button during spin
+    removeNameBtn.style.display = 'none'; // Hide remove button
     document.getElementById('nameResult').textContent = "Spinning...";
 
     const spins = Math.floor(Math.random() * 10) + 15; // 15-25 spins for visual effect
@@ -295,19 +328,103 @@
       drawWheel(names, nameCtx, nameColors);
       nameCtx.restore();
 
+      // Play click sound at intervals
+      if (time - lastClickTime > clickInterval && progress < 0.95) { // Stop clicks near the end
+        clickSynth.triggerAttackRelease("C4", "8n");
+        lastClickTime = time;
+      }
+
       if (progress < 1) {
         requestAnimationFrame(animate); // Continue animation
       } else {
         nameSpinning = false;
         document.getElementById('nameSpinBtn').disabled = false; // Re-enable button
+
         // Calculate the selected item based on the final rotation
-        let normalizedRotation = (2 * Math.PI - (nameRotation % (2 * Math.PI))) % (2 * Math.PI);
-        let index = Math.floor(normalizedRotation / ((2 * Math.PI) / names.length));
-        document.getElementById('nameResult').textContent = "Selected: " + names[index] + "!";
+        // The pointer is at the top (3 * Math.PI / 2 radians clockwise from the right)
+        // The wheel has rotated 'nameRotation' clockwise.
+        // We need to find which segment, in its original (unrotated) position, is now under the pointer.
+        // The text is drawn with textAlign "right" at radius - 10, 5
+        // So the text is at the right edge of the segment.
+        // The "true north" is 3 * Math.PI / 2 (270 degrees)
+        // We need to find the angle of the center of the segment that is currently at the top.
+        // The segments are drawn starting from 0 (right), going clockwise.
+        const numNames = names.length;
+        const arcSize = (2 * Math.PI) / numNames;
+
+        // Angle of the pointer relative to the center of the wheel (pointing upwards)
+        const pointerAngle = Math.PI / 2; // 90 degrees or PI/2 radians (upwards)
+
+        // Calculate the effective rotation of the wheel relative to the pointer
+        // We want to find which segment's *center* is aligned with the pointer.
+        // The text is drawn with textAlign "right" at radius - 10, 5. This means the text's
+        // baseline is at 5px from the center, and its right edge is at radius - 10.
+        // The segment itself spans from `startAngle` to `endAngle`.
+        // The center of the segment is `startAngle + arcSize / 2`.
+        // The wheel rotates clockwise, so we subtract the rotation from the pointer's angle.
+        let adjustedRotation = (nameRotation + Math.PI / 2) % (2 * Math.PI); // Adjust so 0 is at the top
+
+        // Ensure positive angle
+        if (adjustedRotation < 0) {
+            adjustedRotation += 2 * Math.PI;
+        }
+
+        // Calculate the index based on the adjusted rotation
+        // The first segment (index 0) starts at 0 and goes up to arcSize.
+        // If adjustedRotation is 0, it means the start of the first segment is at the top.
+        // We want the segment whose *center* is at the top.
+        // The segments are drawn from 0 (right) clockwise.
+        // A segment `i` spans from `i * arcSize` to `(i+1) * arcSize`.
+        // Its center is at `i * arcSize + arcSize / 2`.
+        // The pointer is at the top, which is 90 degrees (PI/2) clockwise from the right, or -PI/2 from the right (counter-clockwise).
+        // The wheel rotates clockwise.
+        // Let's consider the angle from the top, rotating clockwise.
+        // If the wheel has rotated `nameRotation` clockwise, then the point that was originally at `theta` is now at `theta + nameRotation`.
+        // We want to find `theta` such that `theta + nameRotation` is at the top (PI/2).
+        // So, `theta = PI/2 - nameRotation`.
+        // Then normalize `theta` to be between 0 and 2*PI.
+        let finalAngle = (Math.PI / 2 - nameRotation) % (2 * Math.PI);
+        if (finalAngle < 0) {
+            finalAngle += 2 * Math.PI;
+        }
+
+        // Now, find which segment this `finalAngle` falls into.
+        // Each segment `i` covers angles from `i * arcSize` to `(i+1) * arcSize`.
+        lastSelectedIndex = Math.floor(finalAngle / arcSize);
+
+        // Correct for potential off-by-one errors due to floating point precision or edge cases
+        if (lastSelectedIndex >= names.length) lastSelectedIndex = names.length - 1;
+        if (lastSelectedIndex < 0) lastSelectedIndex = 0;
+
+
+        document.getElementById('nameResult').textContent = "Selected: " + names[lastSelectedIndex] + "!";
+        congratsSynth.triggerAttackRelease(["C5", "E5", "G5"], "2n"); // Play congratulatory chord
+
+        // Show remove button after a name is selected
+        if (names.length > 0) {
+          removeNameBtn.style.display = 'inline-block';
+        }
       }
     }
     requestAnimationFrame(animate); // Start animation
   }
+
+  function removeSelectedName() {
+    if (lastSelectedIndex !== -1 && names.length > 0) {
+      const removedName = names.splice(lastSelectedIndex, 1); // Remove the name
+      localStorage.setItem('marioSluggersNames', JSON.stringify(names)); // Save updated names
+      drawWheel(names, nameCtx, nameColors); // Redraw the wheel
+      document.getElementById('nameResult').textContent = removedName[0] + " has been removed!";
+      removeNameBtn.style.display = 'none'; // Hide button after removal
+      lastSelectedIndex = -1; // Reset selected index
+
+      if (names.length === 0) {
+        document.getElementById('nameResult').textContent = "All names have been removed!";
+        document.getElementById('nameSpinBtn').disabled = true; // Disable spin if no names left
+      }
+    }
+  }
+
 
   // --- Coin flip ---
   const coinInner = document.getElementById('coinInner');
@@ -360,6 +477,7 @@
 
   let stageRotation = 0;
   let stageSpinning = false;
+  let lastStageClickTime = 0;
 
   function spinStageWheel() {
     if(stageSpinning) return;
@@ -387,53 +505,42 @@
       drawWheel(stages, stageCtx, stageColors);
       stageCtx.restore();
 
+      // Play click sound at intervals
+      if (time - lastStageClickTime > clickInterval && progress < 0.95) { // Stop clicks near the end
+        clickSynth.triggerAttackRelease("C4", "8n");
+        lastStageClickTime = time;
+      }
+
       if (progress < 1) {
         requestAnimationFrame(animate);
       } else {
         stageSpinning = false;
         document.getElementById('stageSpinBtn').disabled = false;
-        let normalizedRotation = (2 * Math.PI - (stageRotation % (2 * Math.PI))) % (2 * Math.PI);
-        let index = Math.floor(normalizedRotation / ((2 * Math.PI) / stages.length));
+
+        // Calculate the selected item based on the final rotation
+        // The pointer is at the top (3 * Math.PI / 2 radians clockwise from the right)
+        // The wheel has rotated 'stageRotation' clockwise.
+        // We need to find which segment, in its original (unrotated) position, is now under the pointer.
+        const numStages = stages.length;
+        const arcSize = (2 * Math.PI) / numStages;
+
+        let finalAngle = (Math.PI / 2 - stageRotation) % (2 * Math.PI);
+        if (finalAngle < 0) {
+            finalAngle += 2 * Math.PI;
+        }
+
+        let index = Math.floor(finalAngle / arcSize);
+
+        if (index >= stages.length) index = stages.length - 1;
+        if (index < 0) index = 0;
+
+
         document.getElementById('stageResult').textContent = "Selected Stage: " + stages[index] + "!";
+        congratsSynth.triggerAttackRelease(["C5", "E5", "G5"], "2n"); // Play congratulatory chord
       }
     }
     requestAnimationFrame(animate);
   }
-
-  // --- Live Rankings ---
-  const rankingTableBody = document.getElementById('rankingTable').querySelector('tbody');
-  // Load rankings from localStorage or initialize empty object
-  const rankings = JSON.parse(localStorage.getItem('marioSluggersRankings')) || {};
-
-  function renderRankings() {
-    rankingTableBody.innerHTML = ''; // Clear existing rows
-    // Sort rankings by score in descending order
-    const sortedRankings = Object.entries(rankings).sort(([,scoreA], [,scoreB]) => scoreB - scoreA);
-    sortedRankings.forEach(([player, score]) => {
-      const row = rankingTableBody.insertRow();
-      row.insertCell().textContent = player;
-      row.insertCell().textContent = score;
-    });
-  }
-
-  function updateRanking() {
-    const playerInput = document.getElementById('rankingPlayer');
-    const scoreInput = document.getElementById('rankingScore');
-    const player = playerInput.value.trim();
-    const score = parseInt(scoreInput.value, 10); // Parse score as integer
-
-    if (player && !isNaN(score)) {
-      rankings[player] = score; // Update or add player score
-      localStorage.setItem('marioSluggersRankings', JSON.stringify(rankings)); // Save to localStorage
-      renderRankings(); // Re-render table
-      playerInput.value = ''; // Clear inputs
-      scoreInput.value = '';
-    } else {
-      // Use a custom modal or message box instead of alert if this were a production app
-      console.error('Please enter a valid player name and score.');
-    }
-  }
-  renderRankings(); // Initial render when page loads
 
   // --- Draft Board ---
   const draftBoardTableBody = document.getElementById('draftBoardTable').querySelector('tbody');
