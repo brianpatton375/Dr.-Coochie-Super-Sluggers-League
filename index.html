@@ -1,0 +1,274 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Dr. Coochie's Mario Super Sluggers League</title>
+<style>
+  body { font-family: Arial, sans-serif; background: #222; color: #eee; text-align:center; margin:0; padding:0 10px 50px; }
+  h1 { margin-bottom: 1rem; }
+  #wheelCanvas, #stageWheelCanvas {
+    margin: 20px auto;
+    display: block;
+    background: #333;
+    border-radius: 50%;
+    box-shadow: 0 0 15px #990000;
+  }
+  #coin {
+    margin: 20px auto;
+    cursor: pointer;
+    width: 100px;
+    height: 100px;
+    perspective: 600px;
+  }
+  #coinInner {
+    width: 100px;
+    height: 100px;
+    background: gold;
+    border-radius: 50%;
+    line-height: 100px;
+    font-weight: bold;
+    font-size: 1.4rem;
+    color: #444;
+    user-select: none;
+    transform-style: preserve-3d;
+    box-shadow: 0 0 15px gold;
+  }
+  #coinInner.day {
+    background: #fce570;
+    color: #444;
+    box-shadow: 0 0 15px #ffea70;
+  }
+  #coinInner.night {
+    background: #334466;
+    color: #ddd;
+    box-shadow: 0 0 15px #5577aa;
+  }
+  table {
+    margin: 20px auto;
+    width: 80%;
+    border-collapse: collapse;
+    background: #111;
+    border-radius: 5px;
+    overflow: hidden;
+    box-shadow: 0 0 10px #440000;
+  }
+  th, td {
+    padding: 8px;
+    border-bottom: 1px solid #555;
+  }
+  th {
+    background: #440000;
+  }
+  input[type="number"], input[type="text"] {
+    width: 100%;
+    padding: 6px;
+    border-radius: 3px;
+    border: none;
+  }
+  button {
+    margin-top: 10px;
+    padding: 10px 15px;
+    font-size: 1rem;
+    cursor: pointer;
+    border-radius: 4px;
+    border: none;
+    background: #bb2222;
+    color: white;
+    box-shadow: 0 3px 6px #880000;
+  }
+  button:hover {
+    background: #dd4444;
+  }
+  .admin-section {
+    background: #111;
+    padding: 15px;
+    margin: 20px auto;
+    max-width: 600px;
+    border-radius: 10px;
+    box-shadow: 0 0 10px #440000;
+  }
+  ul#draftBoard {
+    list-style: none;
+    padding-left: 0;
+    max-height: 200px;
+    overflow-y: auto;
+    border: 1px solid #440000;
+    border-radius: 5px;
+    background: #222;
+    box-shadow: inset 0 0 5px #550000;
+  }
+  ul#draftBoard li {
+    padding: 8px;
+    border-bottom: 1px solid #550000;
+  }
+  ul#draftBoard li:last-child {
+    border-bottom: none;
+  }
+  /* Wheel pointer */
+  #pointer {
+    width: 0; 
+    height: 0; 
+    border-left: 15px solid transparent;
+    border-right: 15px solid transparent;
+    border-bottom: 25px solid #bb2222;
+    margin: 0 auto;
+    margin-top: -25px;
+    filter: drop-shadow(0 0 3px #aa0000);
+  }
+</style>
+</head>
+<body>
+
+<h1>Dr. Coochie's Mario Super Sluggers League</h1>
+
+<h2>Name Wheel</h2>
+<div id="pointer"></div>
+<canvas id="wheelCanvas" width="300" height="300"></canvas><br />
+<button onclick="spinNameWheel()" id="nameSpinBtn">Spin Name Wheel</button>
+<p id="nameResult"></p>
+
+<h2>Day/Night Coin Flip</h2>
+<div id="coin" onclick="flipCoin()">
+  <div id="coinInner" class="day">DAY</div>
+</div>
+
+<h2>Stage Wheel</h2>
+<div id="pointer"></div>
+<canvas id="stageWheelCanvas" width="300" height="300"></canvas><br />
+<button onclick="spinStageWheel()" id="stageSpinBtn">Spin Stage Wheel</button>
+<p id="stageResult"></p>
+
+<h2>Live Rankings (Admin Only)</h2>
+<div class="admin-section">
+  <table id="rankingTable">
+    <thead>
+      <tr><th>Player</th><th>Score</th></tr>
+    </thead>
+    <tbody></tbody>
+  </table>
+  <input type="text" id="rankingPlayer" placeholder="Player name" />
+  <input type="number" id="rankingScore" placeholder="Score" />
+  <button onclick="updateRanking()">Update Score</button>
+</div>
+
+<h2>Draft Board (Admin Only)</h2>
+<div class="admin-section">
+  <ul id="draftBoard"></ul>
+  <input type="text" id="draftInput" placeholder="Add player to draft board" />
+  <button onclick="addDraftPlayer()">Add Player</button>
+</div>
+
+<h2>Standings Board (Admin Only)</h2>
+<div class="admin-section">
+  <table id="standingsTable">
+    <thead>
+      <tr><th>Player</th><th>Standing</th></tr>
+    </thead>
+    <tbody></tbody>
+  </table>
+  <input type="text" id="standingPlayer" placeholder="Player name" />
+  <input type="text" id="standingPlace" placeholder="Standing (e.g., 1st, 2nd)" />
+  <button onclick="updateStandings()">Update Standing</button>
+</div>
+
+<script>
+  // --- Wheel drawing common ---
+  function drawWheel(items, ctx, colors) {
+    const num = items.length;
+    const arcSize = (2 * Math.PI) / num;
+    ctx.clearRect(0, 0, ctx.canvas.width, ctx.canvas.height);
+    const centerX = ctx.canvas.width / 2;
+    const centerY = ctx.canvas.height / 2;
+    const radius = centerX - 10;
+    for (let i = 0; i < num; i++) {
+      const startAngle = i * arcSize;
+      const endAngle = startAngle + arcSize;
+      ctx.beginPath();
+      ctx.moveTo(centerX, centerY);
+      ctx.fillStyle = colors[i % colors.length];
+      ctx.arc(centerX, centerY, radius, startAngle, endAngle);
+      ctx.fill();
+      ctx.strokeStyle = '#000';
+      ctx.stroke();
+      ctx.save();
+      ctx.translate(centerX, centerY);
+      ctx.rotate(startAngle + arcSize / 2);
+      ctx.textAlign = "right";
+      ctx.fillStyle = '#fff';
+      ctx.font = "16px Arial";
+      ctx.fillText(items[i], radius - 10, 5);
+      ctx.restore();
+    }
+  }
+
+  // --- Name Wheel ---
+  const names = ["Jacob", "Dylan", "Brian", "Murph", "Cole", "Grant", "Phil"];
+  const nameCanvas = document.getElementById('wheelCanvas');
+  const nameCtx = nameCanvas.getContext('2d');
+  const nameColors = ['#ff6666', '#cc4444'];
+  drawWheel(names, nameCtx, nameColors);
+
+  let nameRotation = 0;
+  let nameSpinning = false;
+
+  function spinNameWheel() {
+    if(nameSpinning) return;
+    nameSpinning = true;
+    const spins = Math.floor(Math.random() * 10) + 15; // 15-25 spins
+    const totalRotation = spins * 2 * Math.PI + (Math.random() * 2 * Math.PI);
+    const duration = 4000; // 4 seconds
+    const start = performance.now();
+
+    function animate(time) {
+      let elapsed = time - start;
+      let progress = Math.min(elapsed / duration, 1);
+      // ease out cubic
+      progress = 1 - Math.pow(1 - progress, 3);
+      nameRotation = totalRotation * progress;
+      nameRotation %= 2 * Math.PI;
+
+      nameCtx.clearRect(0, 0, nameCanvas.width, nameCanvas.height);
+      nameCtx.save();
+      nameCtx.translate(nameCanvas.width / 2, nameCanvas.height / 2);
+      nameCtx.rotate(nameRotation);
+      nameCtx.translate(-nameCanvas.width / 2, -nameCanvas.height / 2);
+      drawWheel(names, nameCtx, nameColors);
+      nameCtx.restore();
+
+      if (progress < 1) {
+        requestAnimationFrame(animate);
+      } else {
+        nameSpinning = false;
+        let normalizedRotation = (2 * Math.PI - (nameRotation % (2 * Math.PI))) % (2 * Math.PI);
+        let index = Math.floor(normalizedRotation / ((2 * Math.PI) / names.length));
+        document.getElementById('nameResult').textContent = "Selected: " + names[index];
+      }
+    }
+    requestAnimationFrame(animate);
+  }
+
+  // --- Coin flip ---
+  const coinInner = document.getElementById('coinInner');
+  let isDay = true;
+  let flipping = false;
+  function flipCoin() {
+    if(flipping) return;
+    flipping = true;
+    // Animate flip with multiple spins
+    let rotation = 0;
+    const spins = 3;
+    const duration = 1200; // ms
+    const start = performance.now();
+
+    function animate(time) {
+      let elapsed = time - start;
+      let progress = Math.min(elapsed / duration, 1);
+      // Rotation from 0 to spins * 360deg
+      rotation = spins * 360 * progress;
+      coinInner.style.transform = `rotateY(${rotation}deg)`;
+      if (progress < 1) {
+        requestAnimationFrame(animate);
+      } else {
+        isDay = !isDay;
+        coin
