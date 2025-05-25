@@ -249,7 +249,8 @@
   }).toDestination();
 
   // --- Wheel drawing common function ---
-  function drawWheel(items, ctx, colors) {
+  // Now accepts a fontSize parameter
+  function drawWheel(items, ctx, colors, fontSize) {
     const num = items.length;
     const arcSize = (2 * Math.PI) / num;
     ctx.clearRect(0, 0, ctx.canvas.width, ctx.canvas.height);
@@ -275,7 +276,7 @@
       ctx.rotate(startAngle + arcSize / 2); // Rotate to the middle of the segment
       ctx.textAlign = "right";
       ctx.fillStyle = '#fff';
-      ctx.font = "bold 14px 'Press Start 2P'"; // Shrink text to fit on wheel
+      ctx.font = `bold ${fontSize}px 'Press Start 2P'`; // Use the passed fontSize
       ctx.fillText(items[i], radius - 10, 5); // Position text
       ctx.restore();
     }
@@ -290,7 +291,7 @@
   const nameCanvas = document.getElementById('wheelCanvas');
   const nameCtx = nameCanvas.getContext('2d');
   const nameColors = ['#ff6666', '#cc4444', '#ff8888', '#ee5555']; // More color variety
-  drawWheel(names, nameCtx, nameColors);
+  drawWheel(names, nameCtx, nameColors, 14); // Pass 14px for Name Wheel
 
   let nameRotation = 0;
   let nameSpinning = false;
@@ -320,13 +321,7 @@
       nameRotation = totalRotation * progress;
       nameRotation %= 2 * Math.PI; // Keep rotation within 0 to 2*PI
 
-      nameCtx.clearRect(0, 0, nameCanvas.width, nameCanvas.height);
-      nameCtx.save();
-      nameCtx.translate(nameCanvas.width / 2, nameCanvas.height / 2);
-      nameCtx.rotate(nameRotation);
-      nameCtx.translate(-nameCanvas.width / 2, -nameCanvas.height / 2);
-      drawWheel(names, nameCtx, nameColors);
-      nameCtx.restore();
+      drawWheel(names, nameCtx, nameColors, 14); // Redraw with 14px font size
 
       // Play click sound at intervals
       if (time - lastClickTime > clickInterval && progress < 0.95) { // Stop clicks near the end
@@ -341,58 +336,18 @@
         document.getElementById('nameSpinBtn').disabled = false; // Re-enable button
 
         // Calculate the selected item based on the final rotation
-        // The pointer is at the top (3 * Math.PI / 2 radians clockwise from the right)
+        // The pointer is at the top (PI/2 radians clockwise from the right, or 90 degrees)
         // The wheel has rotated 'nameRotation' clockwise.
-        // We need to find which segment, in its original (unrotated) position, is now under the pointer.
-        // The text is drawn with textAlign "right" at radius - 10, 5
-        // So the text is at the right edge of the segment.
-        // The "true north" is 3 * Math.PI / 2 (270 degrees)
-        // We need to find the angle of the center of the segment that is currently at the top.
-        // The segments are drawn starting from 0 (right), going clockwise.
         const numNames = names.length;
         const arcSize = (2 * Math.PI) / numNames;
 
-        // Angle of the pointer relative to the center of the wheel (pointing upwards)
-        const pointerAngle = Math.PI / 2; // 90 degrees or PI/2 radians (upwards)
-
-        // Calculate the effective rotation of the wheel relative to the pointer
-        // We want to find which segment's *center* is aligned with the pointer.
-        // The text is drawn with textAlign "right" at radius - 10, 5. This means the text's
-        // baseline is at 5px from the center, and its right edge is at radius - 10.
-        // The segment itself spans from `startAngle` to `endAngle`.
-        // The center of the segment is `startAngle + arcSize / 2`.
-        // The wheel rotates clockwise, so we subtract the rotation from the pointer's angle.
-        let adjustedRotation = (nameRotation + Math.PI / 2) % (2 * Math.PI); // Adjust so 0 is at the top
-
-        // Ensure positive angle
-        if (adjustedRotation < 0) {
-            adjustedRotation += 2 * Math.PI;
+        let selectedAngle = (Math.PI / 2 - nameRotation) % (2 * Math.PI);
+        if (selectedAngle < 0) {
+            selectedAngle += 2 * Math.PI;
         }
 
-        // Calculate the index based on the adjusted rotation
-        // The first segment (index 0) starts at 0 and goes up to arcSize.
-        // If adjustedRotation is 0, it means the start of the first segment is at the top.
-        // We want the segment whose *center* is at the top.
-        // The segments are drawn from 0 (right) clockwise.
-        // A segment `i` spans from `i * arcSize` to `(i+1) * arcSize`.
-        // Its center is at `i * arcSize + arcSize / 2`.
-        // The pointer is at the top, which is 90 degrees (PI/2) clockwise from the right, or -PI/2 from the right (counter-clockwise).
-        // The wheel rotates clockwise.
-        // Let's consider the angle from the top, rotating clockwise.
-        // If the wheel has rotated `nameRotation` clockwise, then the point that was originally at `theta` is now at `theta + nameRotation`.
-        // We want to find `theta` such that `theta + nameRotation` is at the top (PI/2).
-        // So, `theta = PI/2 - nameRotation`.
-        // Then normalize `theta` to be between 0 and 2*PI.
-        let finalAngle = (Math.PI / 2 - nameRotation) % (2 * Math.PI);
-        if (finalAngle < 0) {
-            finalAngle += 2 * Math.PI;
-        }
+        lastSelectedIndex = Math.floor(selectedAngle / arcSize);
 
-        // Now, find which segment this `finalAngle` falls into.
-        // Each segment `i` covers angles from `i * arcSize` to `(i+1) * arcSize`.
-        lastSelectedIndex = Math.floor(finalAngle / arcSize);
-
-        // Correct for potential off-by-one errors due to floating point precision or edge cases
         if (lastSelectedIndex >= names.length) lastSelectedIndex = names.length - 1;
         if (lastSelectedIndex < 0) lastSelectedIndex = 0;
 
@@ -413,7 +368,7 @@
     if (lastSelectedIndex !== -1 && names.length > 0) {
       const removedName = names.splice(lastSelectedIndex, 1); // Remove the name
       localStorage.setItem('marioSluggersNames', JSON.stringify(names)); // Save updated names
-      drawWheel(names, nameCtx, nameColors); // Redraw the wheel
+      drawWheel(names, nameCtx, nameColors, 14); // Redraw the wheel with 14px font
       document.getElementById('nameResult').textContent = removedName[0] + " has been removed!";
       removeNameBtn.style.display = 'none'; // Hide button after removal
       lastSelectedIndex = -1; // Reset selected index
@@ -473,7 +428,7 @@
   const stageCanvas = document.getElementById('stageWheelCanvas');
   const stageCtx = stageCanvas.getContext('2d');
   const stageColors = ['#4caf50', '#8bc34a', '#689f38', '#388e3c']; // Greenish palette for stages
-  drawWheel(stages, stageCtx, stageColors);
+  drawWheel(stages, stageCtx, stageColors, 11); // Pass 11px for Stage Wheel
 
   let stageRotation = 0;
   let stageSpinning = false;
@@ -497,13 +452,7 @@
       stageRotation = totalRotation * progress;
       stageRotation %= 2 * Math.PI;
 
-      stageCtx.clearRect(0, 0, stageCanvas.width, stageCanvas.height);
-      stageCtx.save();
-      stageCtx.translate(stageCanvas.width / 2, stageCanvas.height / 2);
-      stageCtx.rotate(stageRotation);
-      stageCtx.translate(-stageCanvas.width / 2, -stageCanvas.height / 2);
-      drawWheel(stages, stageCtx, stageColors);
-      stageCtx.restore();
+      drawWheel(stages, stageCtx, stageColors, 11); // Redraw with 11px font size
 
       // Play click sound at intervals
       if (time - lastStageClickTime > clickInterval && progress < 0.95) { // Stop clicks near the end
@@ -518,18 +467,17 @@
         document.getElementById('stageSpinBtn').disabled = false;
 
         // Calculate the selected item based on the final rotation
-        // The pointer is at the top (3 * Math.PI / 2 radians clockwise from the right)
+        // The pointer is at the top (PI/2 radians clockwise from the right, or 90 degrees)
         // The wheel has rotated 'stageRotation' clockwise.
-        // We need to find which segment, in its original (unrotated) position, is now under the pointer.
         const numStages = stages.length;
         const arcSize = (2 * Math.PI) / numStages;
 
-        let finalAngle = (Math.PI / 2 - stageRotation) % (2 * Math.PI);
-        if (finalAngle < 0) {
-            finalAngle += 2 * Math.PI;
+        let selectedAngle = (Math.PI / 2 - stageRotation) % (2 * Math.PI);
+        if (selectedAngle < 0) {
+            selectedAngle += 2 * Math.PI;
         }
 
-        let index = Math.floor(finalAngle / arcSize);
+        let index = Math.floor(selectedAngle / arcSize);
 
         if (index >= stages.length) index = stages.length - 1;
         if (index < 0) index = 0;
