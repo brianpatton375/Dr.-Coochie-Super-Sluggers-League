@@ -227,8 +227,7 @@
   <canvas id="wheelCanvas" width="300" height="300"></canvas><br />
   <button onclick="spinNameWheel()" id="nameSpinBtn">Spin Name Wheel</button>
   <p id="nameResult"></p>
-  <button onclick="removeSelectedName()" id="removeNameBtn" style="display: none;">Remove Selected Name</button>
-</div>
+  </div>
 
 <div class="section-container">
   <h2>Day/Night Coin Flip</h2>
@@ -265,14 +264,10 @@
   <h2>Standings Board (Admin Only)</h2>
   <table id="standingsTable">
     <thead>
-      <tr><th>Team Name</th><th>Record</th><th>Actions</th></tr>
-    </thead>
+      <tr><th>Team Name</th><th>Record</th></tr> </thead>
     <tbody></tbody>
   </table>
-  <input type="text" id="standingTeamName" placeholder="Team Name" />
-  <input type="text" id="standingRecord" placeholder="Record (e.g., 5-2)" />
-  <button onclick="updateStandings()">Update Standing</button>
-</div>
+  </div>
 
 <div class="info-section">
   <h2>Info</h2>
@@ -351,13 +346,13 @@
   const clickInterval = 100; // milliseconds between clicks
   let lastSelectedIndex = -1; // To store the index of the last selected name
 
-  const removeNameBtn = document.getElementById('removeNameBtn');
+  // Removed removeNameBtn constant as the button is removed
 
   function spinNameWheel() {
     if(nameSpinning || names.length === 0) return; // Prevent spin if already spinning or no names
     nameSpinning = true;
     document.getElementById('nameSpinBtn').disabled = true; // Disable button during spin
-    removeNameBtn.style.display = 'none'; // Hide remove button
+    // No longer hiding remove button as it's removed
     document.getElementById('nameResult').textContent = "Spinning...";
 
     const spins = Math.floor(Math.random() * 10) + 15; // 15-25 spins for visual effect
@@ -418,40 +413,13 @@
         document.getElementById('nameResult').textContent = "Selected: " + names[lastSelectedIndex] + "!";
         congratsSynth.triggerAttackRelease(["C5", "E5", "G5"], "2n"); // Play congratulatory chord
 
-        // Show remove button after a name is selected
-        if (names.length > 0) {
-          removeNameBtn.style.display = 'inline-block';
-        }
+        // Removed logic to show remove button
       }
     }
     requestAnimationFrame(animate); // Start animation
   }
 
-  function removeSelectedName() {
-    if (lastSelectedIndex !== -1 && names.length > 0) {
-      const removedName = names.splice(lastSelectedIndex, 1); // Remove the name
-      localStorage.setItem('marioSluggersNames', JSON.stringify(names)); // Save updated names
-
-      // Correctly redraw the wheel with the new names and reset rotation
-      nameRotation = 0; // Reset visual rotation
-      nameCtx.clearRect(0, 0, nameCanvas.width, nameCanvas.height);
-      nameCtx.save();
-      nameCtx.translate(nameCanvas.width / 2, nameCanvas.height / 2);
-      nameCtx.rotate(nameRotation);
-      nameCtx.translate(-nameCanvas.width / 2, -nameCanvas.height / 2);
-      drawWheel(names, nameCtx, nameColors, 14);
-      nameCtx.restore();
-
-      document.getElementById('nameResult').textContent = removedName[0] + " has been removed!";
-      removeNameBtn.style.display = 'none'; // Hide button after removal
-      lastSelectedIndex = -1; // Reset selected index
-
-      if (names.length === 0) {
-        document.getElementById('nameResult').textContent = "All names have been removed!";
-        document.getElementById('nameSpinBtn').disabled = true; // Disable spin if no names left
-      }
-    }
-  }
+  // Removed removeSelectedName function as requested
 
   // --- Coin flip ---
   const coinInner = document.getElementById('coinInner');
@@ -715,8 +683,12 @@
 
   // --- Standings Board ---
   const standingsTableBody = document.getElementById('standingsTable').querySelector('tbody');
-  // Load standings from localStorage or initialize empty object
-  const standings = JSON.parse(localStorage.getItem('marioSluggersStandings')) || {};
+  
+  // Initialize standings from defaultNames with 0-0 record
+  const standings = {};
+  defaultNames.forEach(name => {
+    standings[name] = "0-0";
+  });
 
   function renderStandings() {
     standingsTableBody.innerHTML = ''; // Clear existing rows
@@ -740,55 +712,14 @@
       const row = standingsTableBody.insertRow();
       row.insertCell().textContent = teamName;
       row.insertCell().textContent = record;
-      const actionsCell = row.insertCell();
-      const deleteButton = document.createElement('button');
-      deleteButton.textContent = 'Delete';
-      deleteButton.classList.add('delete-btn');
-      deleteButton.onclick = () => deleteTeam(teamName);
-      actionsCell.appendChild(deleteButton);
+      // Removed actionsCell and deleteButton as standings are now permanent
     });
   }
 
-  function updateStandings() {
-    const teamNameInput = document.getElementById('standingTeamName');
-    const recordInput = document.getElementById('standingRecord');
-    const teamName = teamNameInput.value.trim();
-    const record = recordInput.value.trim();
-
-    if (teamName && record) {
-      // Basic validation for W-L format (e.g., 5-2)
-      if (!/^\d+-\d+$/.test(record)) {
-        console.error('Record format must be like "Wins-Losses" (e.g., 5-2).');
-        // Clear the invalid record input to prompt user for correct format
-        recordInput.value = ''; 
-        return;
-      }
-      standings[teamName] = record; // Update or add team standing
-      localStorage.setItem('marioSluggersStandings', JSON.stringify(standings)); // Save to localStorage
-      renderStandings(); // Re-render table
-      teamNameInput.value = ''; // Clear inputs on successful update
-      recordInput.value = ''; // Clear inputs on successful update
-    } else {
-      console.error('Please enter both team name and record.');
-      // Clear inputs if either is empty to ensure user re-enters
-      teamNameInput.value = ''; 
-      recordInput.value = '';
-    }
-  }
-
-  function deleteTeam(teamName) {
-    if (standings.hasOwnProperty(teamName)) {
-      delete standings[teamName];
-      localStorage.setItem('marioSluggersStandings', JSON.stringify(standings));
-      renderStandings(); // Re-render the table
-      console.log(`Team "${teamName}" deleted successfully.`);
-    } else {
-      console.error(`Team "${teamName}" not found.`);
-    }
-  }
+  // Removed updateStandings function as requested
+  // Removed deleteTeam function as requested
 
   renderStandings(); // Initial render
 </script>
 </body>
 </html>
-
