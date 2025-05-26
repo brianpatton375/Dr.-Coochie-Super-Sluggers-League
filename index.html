@@ -288,6 +288,12 @@
     envelope: { attack: 0.05, decay: 0.2, sustain: 0.1, release: 0.5 }
   }).toDestination();
 
+  // Global variables for wheel animations and state
+  window.clickInterval = 100; // milliseconds between clicks for wheel sounds
+  window.lastClickTime = 0; // To track last click time for name wheel
+  window.lastStageClickTime = 0; // To track last click time for stage wheel
+  window.previousSelectedIndex = -1; // To store the index of the last selected name for non-repeat logic
+
   // --- Wheel drawing common function ---
   // Now accepts a fontSize parameter
   function drawWheel(items, ctx, colors, fontSize) {
@@ -342,31 +348,59 @@
 
   let nameRotation = 0;
   let nameSpinning = false;
-  let lastClickTime = 0;
-  const clickInterval = 100; // milliseconds between clicks
-  let lastSelectedIndex = -1; // To store the index of the last selected name
-
-  // Removed removeNameBtn constant as the button is removed
-
+  
   function spinNameWheel() {
-    if(nameSpinning || names.length === 0) return; // Prevent spin if already spinning or no names
+    if (nameSpinning || names.length === 0) return;
     nameSpinning = true;
-    document.getElementById('nameSpinBtn').disabled = true; // Disable button during spin
-    // No longer hiding remove button as it's removed
+    document.getElementById('nameSpinBtn').disabled = true;
     document.getElementById('nameResult').textContent = "Spinning...";
 
-    const spins = Math.floor(Math.random() * 10) + 15; // 15-25 spins for visual effect
-    const totalRotation = spins * 2 * Math.PI + (Math.random() * 2 * Math.PI); // Random final position
+    const numNames = names.length;
+    const arcSize = (2 * Math.PI) / numNames;
+
+    // Determine the target index, ensuring it's not the same as the previous one if possible
+    let targetIndex;
+    if (numNames === 1) {
+      targetIndex = 0; // Only one name, so it has to be selected
+    } else {
+      do {
+        targetIndex = Math.floor(Math.random() * numNames);
+      } while (targetIndex === window.previousSelectedIndex); // Keep picking until different
+    }
+
+    // Calculate the exact angle for the wheel to stop, ensuring the targetIndex is under the pointer.
+    // The pointer is at the 12 o'clock position (Math.PI / 2 radians).
+    // Each segment starts at `i * arcSize`. The center of segment `targetIndex` is `targetIndex * arcSize + arcSize / 2`.
+    // We want this center to align with the pointer.
+    // To add randomness within the segment, we can add a random offset to `original_center_angle`.
+    const randomOffsetWithinSegment = (Math.random() * arcSize) - (arcSize / 2); // From -arcSize/2 to +arcSize/2
+    const desiredPointerAngle = Math.PI / 2; // Fixed pointer position (12 o'clock)
+
+    // Calculate the angle where the wheel should stop so that the target segment is under the pointer.
+    // The angle of the target segment's *start* relative to the wheel's unrotated state.
+    const targetSegmentStartAngle = targetIndex * arcSize;
+    // The actual angle within the target segment where the pointer should land.
+    const landingAngleInSegment = targetSegmentStartAngle + (arcSize / 2) + randomOffsetWithinSegment;
+
+    // Now, calculate the required final rotation of the *entire wheel* (`nameRotation`)
+    // such that `landingAngleInSegment` ends up at `desiredPointerAngle`.
+    // `(landingAngleInSegment - finalRotation) % (2 * Math.PI) = desiredPointerAngle`
+    // `finalRotation = (landingAngleInSegment - desiredPointerAngle) % (2 * Math.PI)`
+    let requiredFinalRotation = (landingAngleInSegment - desiredPointerAngle);
+    // Ensure the requiredFinalRotation is positive and within 0 to 2*PI
+    requiredFinalRotation = (requiredFinalRotation % (2 * Math.PI) + 2 * Math.PI) % (2 * Math.PI);
+
+    const spins = Math.floor(Math.random() * 10) + 15; // 15-25 full spins for visual effect
+    const totalRotation = spins * 2 * Math.PI + requiredFinalRotation; // Total rotation for the animation
+
     const duration = 4000; // 4 seconds animation
     const start = performance.now();
 
     function animate(time) {
       let elapsed = time - start;
       let progress = Math.min(elapsed / duration, 1);
-      // Ease out cubic function for smooth deceleration
-      progress = 1 - Math.pow(1 - progress, 3);
+      progress = 1 - Math.pow(1 - progress, 3); // Ease out cubic function for smooth deceleration
       nameRotation = totalRotation * progress;
-      nameRotation %= 2 * Math.PI; // Keep rotation within 0 to 2*PI
 
       nameCtx.clearRect(0, 0, nameCanvas.width, nameCanvas.height); // Clear canvas for redraw
       nameCtx.save(); // Save context before applying overall wheel transformation
@@ -379,9 +413,9 @@
       nameCtx.restore(); // Restore context after overall wheel transformation
 
       // Play click sound at intervals
-      if (time - lastClickTime > clickInterval && progress < 0.95) { // Stop clicks near the end
+      if (time - window.lastClickTime > window.clickInterval && progress < 0.95) { // <--- Changed to window.clickInterval
         clickSynth.triggerAttackRelease("C4", "8n");
-        lastClickTime = time;
+        window.lastClickTime = time; // <--- Changed to window.lastClickTime
       }
 
       if (progress < 1) {
@@ -390,36 +424,16 @@
         nameSpinning = false;
         document.getElementById('nameSpinBtn').disabled = false; // Re-enable button
 
-        // Calculate the selected item based on the final rotation
-        // The winner is the segment at the 12 o'clock (top) position.
-        // The angle for the 12 o'clock position in canvas coordinates is PI/2 (90 degrees).
-        // If the wheel has rotated 'nameRotation' clockwise, we need to find which segment
-        // was originally at (PI/2 - nameRotation).
-        let selectedAngle = (Math.PI / 2 - nameRotation);
-        // Normalize angle to be between 0 and 2*PI
-        selectedAngle = (selectedAngle % (2 * Math.PI) + 2 * Math.PI) % (2 * Math.PI);
-
-        const numNames = names.length;
-        const arcSize = (2 * Math.PI) / numNames;
-
-        // Determine the index of the segment whose *center* is at this `selectedAngle`.
-        lastSelectedIndex = Math.floor(((selectedAngle - arcSize / 2 + 2 * Math.PI) % (2 * Math.PI)) / arcSize);
-
-        // Ensure index wraps around correctly for the last segment
-        if (lastSelectedIndex >= numNames) lastSelectedIndex = numNames - 1;
-        if (lastSelectedIndex < 0) lastSelectedIndex = 0;
-
-
-        document.getElementById('nameResult').textContent = "Selected: " + names[lastSelectedIndex] + "!";
+        // The selected item is `targetIndex` because we calculated totalRotation for it.
+        document.getElementById('nameResult').textContent = "Selected: " + names[targetIndex] + "!";
         congratsSynth.triggerAttackRelease(["C5", "E5", "G5"], "2n"); // Play congratulatory chord
 
-        // Removed logic to show remove button
+        // Store the current targetIndex as the previous one for the next spin
+        window.previousSelectedIndex = targetIndex;
       }
     }
     requestAnimationFrame(animate); // Start animation
   }
-
-  // Removed removeSelectedName function as requested
 
   // --- Coin flip ---
   const coinInner = document.getElementById('coinInner');
@@ -472,8 +486,7 @@
 
   let stageRotation = 0;
   let stageSpinning = false;
-  let lastStageClickTime = 0;
-
+  
   function spinStageWheel() {
     if(stageSpinning) return;
     stageSpinning = true;
@@ -490,7 +503,6 @@
       let progress = Math.min(elapsed / duration, 1);
       progress = 1 - Math.pow(1 - progress, 3);
       stageRotation = totalRotation * progress;
-      stageRotation %= 2 * Math.PI;
 
       stageCtx.clearRect(0, 0, stageCanvas.width, stageCanvas.height); // Clear canvas for redraw
       stageCtx.save(); // Save context before applying overall wheel transformation
@@ -503,9 +515,9 @@
       stageCtx.restore(); // Restore context after overall wheel transformation
 
       // Play click sound at intervals
-      if (time - lastStageClickTime > clickInterval && progress < 0.95) { // Stop clicks near the end
+      if (time - window.lastStageClickTime > window.clickInterval && progress < 0.95) { // <--- Changed to window.clickInterval
         clickSynth.triggerAttackRelease("C4", "8n");
-        lastStageClickTime = time;
+        window.lastStageClickTime = time; // <--- Changed to window.lastStageClickTime
       }
 
       if (progress < 1) {
@@ -715,9 +727,6 @@
       // Removed actionsCell and deleteButton as standings are now permanent
     });
   }
-
-  // Removed updateStandings function as requested
-  // Removed deleteTeam function as requested
 
   renderStandings(); // Initial render
 </script>
