@@ -18,8 +18,9 @@
     }
   }
 
+  
   function resetNameWheel() {
-    names = [...defaultNames]; // Reset to original
+    names = ["Brian", "Dylan", "Jacob", "Grant", "Phil", "Cole", "Murph"]; // Explicit reset to original 7 names
     localStorage.setItem('marioSluggersNames', JSON.stringify(names));
     drawWheel(names, nameCtx, nameColors, 14);
     document.getElementById('nameResult').textContent = "Wheel reset.";
@@ -765,8 +766,9 @@
     }
   }
 
+  
   function resetNameWheel() {
-    names = [...defaultNames]; // Reset to original
+    names = ["Brian", "Dylan", "Jacob", "Grant", "Phil", "Cole", "Murph"]; // Explicit reset to original 7 names
     localStorage.setItem('marioSluggersNames', JSON.stringify(names));
     drawWheel(names, nameCtx, nameColors, 14);
     document.getElementById('nameResult').textContent = "Wheel reset.";
