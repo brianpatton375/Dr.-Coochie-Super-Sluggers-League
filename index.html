@@ -5,7 +5,27 @@
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 <title>Dr. Coochie's Mario Super Sluggers League</title>
 <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet">
-<script src="https://cdnjs.cloudflare.com/ajax/libs/tone/14.8.49/Tone.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/tone/14.8.49/Tone.min.js">
+  function removeSelectedName() {
+    const resultText = document.getElementById('nameResult').textContent;
+    const selectedName = resultText.replace("Selected: ", "").replace("!", "").trim();
+    const index = names.indexOf(selectedName);
+    if (index !== -1) {
+      names.splice(index, 1);
+      localStorage.setItem('marioSluggersNames', JSON.stringify(names));
+      drawWheel(names, nameCtx, nameColors, 14);
+      document.getElementById('nameResult').textContent = `${selectedName} removed.`;
+    }
+  }
+
+  function resetNameWheel() {
+    names = [...defaultNames]; // Reset to original
+    localStorage.setItem('marioSluggersNames', JSON.stringify(names));
+    drawWheel(names, nameCtx, nameColors, 14);
+    document.getElementById('nameResult').textContent = "Wheel reset.";
+  }
+</script>
+
 <style>
   body {
     font-family: 'Press Start 2P', cursive, Arial, sans-serif; /* Added a retro font */
@@ -226,6 +246,9 @@
   <h2>Name Wheel</h2>
   <canvas id="wheelCanvas" width="300" height="300"></canvas><br />
   <button onclick="spinNameWheel()" id="nameSpinBtn">Spin Name Wheel</button>
+  <button onclick="removeSelectedName()">Remove Selected</button>
+  <button onclick="resetNameWheel()">Reset Wheel</button>
+
   <p id="nameResult"></p>
   </div>
 
@@ -729,6 +752,26 @@
   }
 
   renderStandings(); // Initial render
+
+  function removeSelectedName() {
+    const resultText = document.getElementById('nameResult').textContent;
+    const selectedName = resultText.replace("Selected: ", "").replace("!", "").trim();
+    const index = names.indexOf(selectedName);
+    if (index !== -1) {
+      names.splice(index, 1);
+      localStorage.setItem('marioSluggersNames', JSON.stringify(names));
+      drawWheel(names, nameCtx, nameColors, 14);
+      document.getElementById('nameResult').textContent = `${selectedName} removed.`;
+    }
+  }
+
+  function resetNameWheel() {
+    names = [...defaultNames]; // Reset to original
+    localStorage.setItem('marioSluggersNames', JSON.stringify(names));
+    drawWheel(names, nameCtx, nameColors, 14);
+    document.getElementById('nameResult').textContent = "Wheel reset.";
+  }
 </script>
+
 </body>
 </html>
