@@ -194,28 +194,32 @@
     .delete-btn:hover {
       background-color: #c82333;
     }
-    .delete-pick-btn { /* Style for draft pick delete button */
-      background-color: #ffc107; /* Yellowish color for delete pick */
+    /*
+    .delete-pick-btn {
+      background-color: #ffc107; 
       color: #333;
       border: none;
       padding: 3px 6px;
       font-size: 0.65rem;
       border-radius: 3px;
       cursor: pointer;
-      transition: opacity 0.2s ease-in-out; /* Smooth transition for opacity */
+      transition: opacity 0.2s ease-in-out; 
       margin-left: 5px;
-      vertical-align: middle; /* Align with text */
-      opacity: 0; /* Hidden by default */
-      pointer-events: none; /* Make it unclickable when invisible */
+      vertical-align: middle; 
+      opacity: 0; 
+      pointer-events: none; 
     }
     .delete-pick-btn:hover {
       background-color: #e0a800;
     }
-    /* Show delete button on hover over the table cell */
+    */
+    /* 
+    Show delete button on hover over the table cell
     #draftBoardTable td:hover .delete-pick-btn {
-      opacity: 1; /* Visible on hover */
-      pointer-events: auto; /* Make it clickable when visible */
+      opacity: 1; 
+      pointer-events: auto; 
     }
+    */
 </style>
 </head>
 <body>
@@ -263,12 +267,14 @@
         </thead>
         <tbody></tbody>
     </table>
+    <!--
     <select id="draftCaptainSelect">
         <option value="">Select Player Name</option>
     </select>
     <input type="number" id="draftPickNumber" placeholder="Pick Number (1-8)" min="1" max="8" />
     <input type="text" id="draftedPlayerName" placeholder="Player drafted" />
     <button onclick="addDraftPick()">Add Draft Pick</button>
+    -->
 </div>
 
 <div class="admin-section">
@@ -356,7 +362,7 @@
     // --- Data from CSV ---
     const csvContent = `Name/Team,Grant,Murph,Brian,Cole ,Dylan,Phil,Jacob
 Captain ,Daisy,Mario,Bowser Jr.,Waluigi,Diddy Kong,Yoshi,Donkey Kong
-Round 1,wiggler,peter,bowser Jr.,king boo,funky kong,boo,birdo
+Round 1,wiggler,peter,bowser ,king boo,funky kong,boo,birdo
 Round 2,baby dk,peach,TOADSWORTH,blue pianta,red kritter,green magikoopa,lb yoshi
 Round 3,pink yoshi,kritter,hammer bro,luigi,brown kritter,blooper,red magikoopa
 Round 4,goomba,yellow magikoopa,fire bro,purple toad,blue magikoopa,k rool,blue kritter
@@ -618,8 +624,9 @@ Round 8,paratroopa,dry bones,blue shyguy,monty mole,green drybones,yellow shyguy
     const numDraftPicksInTable = 8; // Number of draft pick columns (fixed at 8 as per CSV)
 
     // Initialize draft board data from localStorage or with the data parsed from CSV
-    let draftBoardData = JSON.parse(localStorage.getItem('marioSluggersDraftBoard')) || initialDraftBoardData;
+    let draftBoardData = initialDraftBoardData;
 
+    /*
     // If data exists in localStorage, ensure it has the correct captain characters and pick array length
     // This handles cases where the CSV might change or new players are added/removed.
     draftBoardData = draftPlayerNames.map(playerName => {
@@ -641,8 +648,9 @@ Round 8,paratroopa,dry bones,blue shyguy,monty mole,green drybones,yellow shyguy
     });
     // Save the possibly updated structure back to localStorage
     localStorage.setItem('marioSluggersDraftBoard', JSON.stringify(draftBoardData));
+    */
 
-
+    /*
     // Populate the captain select dropdown with player names from CSV
     const draftCaptainSelect = document.getElementById('draftCaptainSelect');
     // Clear existing options first
@@ -653,6 +661,7 @@ Round 8,paratroopa,dry bones,blue shyguy,monty mole,green drybones,yellow shyguy
         option.textContent = playerName;
         draftCaptainSelect.appendChild(option);
     });
+    */
 
     function renderDraftBoard() {
         draftBoardTableBody.innerHTML = ''; // Clear existing rows
@@ -684,6 +693,7 @@ Round 8,paratroopa,dry bones,blue shyguy,monty mole,green drybones,yellow shyguy
         });
     }
 
+    /*
     function addDraftPick() {
         const selectedPlayerName = draftCaptainSelect.value;
         const pickNumber = parseInt(document.getElementById('draftPickNumber').value, 10);
@@ -715,7 +725,9 @@ Round 8,paratroopa,dry bones,blue shyguy,monty mole,green drybones,yellow shyguy
             console.error('Selected player not found in draft board data. This should not happen.');
         }
     }
+    */
 
+    /*
     function deleteDraftPick(playerName, pickIndex) {
         const playerRow = draftBoardData.find(row => row.name === playerName);
         if (playerRow && playerRow.picks[pickIndex] !== undefined) {
@@ -727,6 +739,7 @@ Round 8,paratroopa,dry bones,blue shyguy,monty mole,green drybones,yellow shyguy
             console.error(`Could not delete pick ${pickIndex + 1} for ${playerName}.`);
         }
     }
+    */
 
     renderDraftBoard();
 
